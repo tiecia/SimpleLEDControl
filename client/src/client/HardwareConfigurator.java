@@ -8,6 +8,8 @@ import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+import javax.swing.tree.TreePath;
+
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -20,6 +22,7 @@ import javax.swing.JComboBox;
 import java.awt.Choice;
 import net.miginfocom.swing.MigLayout;
 import javax.swing.JSplitPane;
+import javax.swing.JTree;
 
 public class HardwareConfigurator extends JDialog {
 
@@ -31,6 +34,7 @@ public class HardwareConfigurator extends JDialog {
 	private JPanel contentPanel;
 	private JPanel confirmPanel;
 	private JButton btnOK;
+	private JTree tree;
 	
 
 	
@@ -55,6 +59,9 @@ public class HardwareConfigurator extends JDialog {
 			contentPanel = new JPanel();
 			getContentPane().add(contentPanel);
 			contentPanel.setLayout(new MigLayout("", "[128.00][150,grow]", "[214.00px,grow]"));
+			
+			tree = new JTree();
+			contentPanel.add(tree, "cell 1 0,grow");
 			
 			confirmPanel = new JPanel();
 			getContentPane().add(confirmPanel, BorderLayout.SOUTH);
