@@ -8,6 +8,7 @@ import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 
 import java.awt.event.ActionListener;
@@ -21,8 +22,12 @@ import javax.swing.JTextField;
 import javax.swing.JComboBox;
 import java.awt.Choice;
 import net.miginfocom.swing.MigLayout;
+import sun.reflect.generics.tree.Tree;
+
 import javax.swing.JSplitPane;
 import javax.swing.JTree;
+import javax.swing.JScrollPane;
+import java.awt.Color;
 
 public class HardwareConfigurator extends JDialog {
 
@@ -31,10 +36,12 @@ public class HardwareConfigurator extends JDialog {
 	
 	private ArrayList<Arduino> arduinos = new ArrayList<Arduino>();
 	private ArrayList<Arduino> strips = new ArrayList<Arduino>();
-	private JPanel contentPanel;
+	private JPanel bodyPanel;
 	private JPanel confirmPanel;
 	private JButton btnOK;
+	private JScrollPane scrollPane;
 	private JTree tree;
+	private JButton btnNewButton;
 	
 
 	
@@ -52,16 +59,28 @@ public class HardwareConfigurator extends JDialog {
 		setModal(true);
 		panel.setBounds(100, 100, 450, 300);
 		getContentPane().setLayout(new BorderLayout(0, 0));
-		
-			/*
-			 * Main Content Panel 
-			 */
-			contentPanel = new JPanel();
-			getContentPane().add(contentPanel);
-			contentPanel.setLayout(new MigLayout("", "[128.00][150,grow]", "[214.00px,grow]"));
+			bodyPanel = new JPanel();
+			bodyPanel.setBackground(Color.WHITE);
+
+			scrollPane = new JScrollPane();
+			bodyPanel.add(scrollPane, "cell 0 0");
 			
-			tree = new JTree();
-			contentPanel.add(tree, "cell 1 0,grow");
+			DefaultMutableTreeNode top = new DefaultMutableTreeNode("Devices");
+			DefaultMutableTreeNode middle = new DefaultMutableTreeNode("Arduino");
+			DefaultMutableTreeNode bottom = new DefaultMutableTreeNode("Strip");
+			
+			top.add(middle);
+			middle.add(bottom);
+			
+			tree = new JTree(top);
+			scrollPane.add(tree);
+			
+
+			getContentPane().add(bodyPanel);
+			bodyPanel.setLayout(new MigLayout("", "[128.00,grow][150,grow]", "[214.00px,grow]"));
+			
+			btnNewButton = new JButton("New button");
+			bodyPanel.add(btnNewButton, "cell 1 0");
 			
 			confirmPanel = new JPanel();
 			getContentPane().add(confirmPanel, BorderLayout.SOUTH);
@@ -93,7 +112,7 @@ public class HardwareConfigurator extends JDialog {
 			int workingIndex = 0;
 			arduinos.add(new Arduino(add.getName(), add.getPort()));
 			if(arduinos.get(arduinos.size()-1).isOpen()) {
-				contentPanel.add(new JButton());
+				bodyPanel.add(new JButton());
 			} else {
 				JOptionPane.showMessageDialog(panel, "Failed to connect to Arduino \"" + arduinos.get(arduinos.size()).getName() + "\"", "Error", JOptionPane.ERROR_MESSAGE);
 				arduinos.remove(arduinos.size());
