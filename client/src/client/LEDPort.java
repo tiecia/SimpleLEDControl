@@ -11,7 +11,7 @@ public class LEDPort {
 	
 	private String portIdent;
 	
-	public void initialize(String comPort) {
+	public LEDPort(String comPort) {
 		portIdent = comPort;
 		port = SerialPort.getCommPort(comPort);
 		port.openPort();
@@ -33,14 +33,11 @@ public class LEDPort {
 	
 	
 	public void sendData(int brightnessValue, int redValue, int greenValue, int blueValue) {
-		int numPix = 100;
-		byte[] writeBuffer = new byte[3*numPix+1];
-		writeBuffer[0] = (byte) brightnessValue;
-		for(int i = 1; i<numPix*3; i+=3) {
-			writeBuffer[i] = (byte) redValue;
-			writeBuffer[i+1] = (byte) greenValue;
-			writeBuffer[i+2] = (byte) blueValue;
-		}
+		byte[] writeBuffer = new byte[3];
+//		writeBuffer[0] = (byte) brightnessValue;
+		writeBuffer[0] = (byte) redValue;
+		writeBuffer[1] = (byte) greenValue;
+		writeBuffer[2] = (byte) blueValue;
 		System.out.println(Arrays.toString(writeBuffer));
 		port.writeBytes(writeBuffer, writeBuffer.length);
 	}

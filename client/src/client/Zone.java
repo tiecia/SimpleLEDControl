@@ -235,6 +235,7 @@ public class Zone extends JInternalFrame {
 		buttonPanel.setBounds(26, 59, 250, 260);
 		getContentPane().add(buttonPanel);
 		
+		//Configure slider panel
 		sliderPanel.setBounds(325, 60, 419, 276);
 		getContentPane().add(sliderPanel);
 		sliderPanel.setLayout(new BoxLayout(sliderPanel, BoxLayout.Y_AXIS));
@@ -243,6 +244,8 @@ public class Zone extends JInternalFrame {
 		sliderPanel.add(brightnessSliderPanel);
 		brightnessSliderPanel.setLayout(null);
 		brightnessSliderPanel.setForeground(Color.BLACK);
+		
+		//Configure and add all sliders
 		sliderBrightness.setValue(80);
 		sliderBrightness.setToolTipText("Brightness");
 		sliderBrightness.setMinimum(1);

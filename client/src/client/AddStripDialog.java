@@ -16,6 +16,7 @@ import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.RowSpec;
 import net.miginfocom.swing.MigLayout;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.awt.event.ActionEvent;
 import javax.swing.JComboBox;
 
@@ -35,8 +36,8 @@ public class AddStripDialog extends JDialog {
 	 * Create the dialog.
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public AddStripDialog(Arduino[] arduinos) {
-		comboBox = new JComboBox(arduinos);
+	public AddStripDialog(ArrayList<Arduino> arduinos) {
+		comboBox = new JComboBox(arduinos.toArray());
 		
 		setModal(true);
 		setBounds(100, 100, 290, 184);
@@ -68,8 +69,8 @@ public class AddStripDialog extends JDialog {
 		contentPanel.add(textName, "cell 2 2,grow");
 		textName.setColumns(10);
 		
-		JLabel lblSelectArduino = new JLabel("Select Arduino");
-		contentPanel.add(lblSelectArduino, "cell 0 3");
+		JLabel lblParentDevice = new JLabel("Parent Device");
+		contentPanel.add(lblParentDevice, "cell 0 3");
 		
 		contentPanel.add(comboBox, "cell 2 3,growx");
 		

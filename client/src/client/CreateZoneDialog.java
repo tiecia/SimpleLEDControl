@@ -37,7 +37,7 @@ public class CreateZoneDialog extends JDialog {
 	/**
 	 * Create the dialog.
 	 */
-	public CreateZoneDialog(ArrayList<Arduino> arduinoList, ArrayList<Zone> zones, ArrayList<Arduino> stripList) {
+	public CreateZoneDialog(ArrayList<Arduino> arduinoList, ArrayList<Zone> zones) {
 		this.zones = zones;
 		stagedArduinos = new Arduino[arduinoList.size()];
 		/*
@@ -145,11 +145,14 @@ public class CreateZoneDialog extends JDialog {
 			arduinoPanel.add(arduinoBoxes[i]);
 		}
 		
-		stripBoxes = new StripCheckBoxes[stripList.size()];
-		for(int i = 0; i<stripList.size(); i++) {
-			stripBoxes[i] = new StripCheckBoxes(stripList.get(i));
-			stripPanel.add(stripBoxes[i]);
-		}
+		
+		///LED Strip Code (Future Addition)
+		
+//		stripBoxes = new StripCheckBoxes[stripList.size()];
+//		for(int i = 0; i<stripList.size(); i++) {
+//			stripBoxes[i] = new StripCheckBoxes(stripList.get(i));
+//			stripPanel.add(stripBoxes[i]);
+//		}
 	}
 	
 	/*

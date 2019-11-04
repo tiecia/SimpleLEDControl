@@ -40,7 +40,6 @@ public class AppWindow {
 	private HardwareConfigurator conf = new HardwareConfigurator();
 	
 	private ArrayList<Zone> zones = new ArrayList<Zone>();
-	private ArrayList<Arduino> arduinos;
 	
 
 	/**
@@ -57,11 +56,6 @@ public class AppWindow {
 				}
 			}
 		});
-	}
-	
-	private void configureHardware() {
-		conf.setBounds(200, 200, 450, 300);
-		conf.setVisible(true);
 	}
 
 	/**
@@ -141,7 +135,7 @@ public class AppWindow {
 				mntmAddZone.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
 						int workingIndex = tabbedPane.getTabCount();
-						CreateZoneDialog dialog = new CreateZoneDialog(conf.getArduinos(), zones, conf.getStrips());
+						CreateZoneDialog dialog = new CreateZoneDialog(conf.getArduinos(), zones);
 						dialog.setModal(true);
 						dialog.setBounds(200, 200, 300, 300);
 						dialog.setVisible(true);
@@ -205,5 +199,10 @@ public class AppWindow {
 			}
 		});
 		mnFile.add(mntmConfigureHardware);
+	}
+	
+	private void configureHardware() { //Creates and launches the HardwareConfigurator
+		conf.setBounds(200, 200, 450, 300);
+		conf.setVisible(true);
 	}
 }

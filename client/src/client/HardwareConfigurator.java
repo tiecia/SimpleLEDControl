@@ -10,6 +10,7 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
+import javax.swing.tree.TreeSelectionModel;
 
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -28,6 +29,11 @@ import javax.swing.JSplitPane;
 import javax.swing.JTree;
 import javax.swing.JScrollPane;
 import java.awt.Color;
+import java.awt.GridLayout;
+import javax.swing.JTextArea;
+import javax.swing.event.TreeSelectionListener;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.JEditorPane;
 
 public class HardwareConfigurator extends JDialog {
 
@@ -35,13 +41,10 @@ public class HardwareConfigurator extends JDialog {
 	public final JPanel panel = new JPanel();
 	
 	private ArrayList<Arduino> arduinos = new ArrayList<Arduino>();
-	private ArrayList<Arduino> strips = new ArrayList<Arduino>();
-	private JPanel bodyPanel;
-	private JPanel confirmPanel;
-	private JButton btnOK;
-	private JScrollPane scrollPane;
+	
 	private JTree tree;
-	private JButton btnNewButton;
+	private DefaultMutableTreeNode rootTreeNode;
+	private JEditorPane htmlArea;
 	
 
 	
@@ -59,72 +62,124 @@ public class HardwareConfigurator extends JDialog {
 		setModal(true);
 		panel.setBounds(100, 100, 450, 300);
 		getContentPane().setLayout(new BorderLayout(0, 0));
-			bodyPanel = new JPanel();
+			JPanel bodyPanel = new JPanel();
 			bodyPanel.setBackground(Color.WHITE);
+			bodyPanel.setLayout(new GridLayout(0, 2, 0, 0));
+			
+			rootTreeNode = new DefaultMutableTreeNode("Devices"); //Create Root Tree Node (Always There)
 
-			scrollPane = new JScrollPane();
-			bodyPanel.add(scrollPane, "cell 0 0");
+			tree = new JTree(rootTreeNode); //Create tree 
+			tree.addTreeSelectionListener(new TreeSelectionListener() {
+				public void valueChanged(TreeSelectionEvent arg0) {
+					updateHTML();
+				}
+			});
+	        tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+	        
+	        
+			JScrollPane treeScrollPane = new JScrollPane(tree); //Create tree scroll pane and add tree
+			bodyPanel.add(treeScrollPane);
 			
-			DefaultMutableTreeNode top = new DefaultMutableTreeNode("Devices");
-			DefaultMutableTreeNode middle = new DefaultMutableTreeNode("Arduino");
-			DefaultMutableTreeNode bottom = new DefaultMutableTreeNode("Strip");
-			
-			top.add(middle);
-			middle.add(bottom);
-			
-			tree = new JTree(top);
-			scrollPane.add(tree);
-			
-
 			getContentPane().add(bodyPanel);
-			bodyPanel.setLayout(new MigLayout("", "[128.00,grow][150,grow]", "[214.00px,grow]"));
 			
-			btnNewButton = new JButton("New button");
-			bodyPanel.add(btnNewButton, "cell 1 0");
+			JScrollPane htmlScrollPane = new JScrollPane(); //Create HTML scroll pane
+			bodyPanel.add(htmlScrollPane);
 			
-			confirmPanel = new JPanel();
+			htmlArea = new JEditorPane(); //create HTML text area
+			htmlScrollPane.setViewportView(htmlArea); //Add HTML text area to scroll pane
+			
+			//Confirm Panel (Bottom Button Panel)
+			JPanel confirmPanel = new JPanel();
 			getContentPane().add(confirmPanel, BorderLayout.SOUTH);
-			confirmPanel.setLayout(new MigLayout("", "[141.00px][][][][][][][][]", "[23px]"));
+			confirmPanel.setLayout(new MigLayout("", "[141.00px][grow,center]", "[23px]"));
 			
-			btnOK = new JButton("OK");
+			
+			JButton btnOK = new JButton("OK");
 			confirmPanel.add(btnOK, "cell 0 0,alignx left,aligny center");
 			//AddArduino Button
-			JButton btnAddArduino = new JButton("Add Arduino");
-			confirmPanel.add(btnAddArduino, "cell 8 0");
-			btnAddArduino.addActionListener(new ActionListener() {
+			JButton btnAddDevice = new JButton("Add Device");
+			confirmPanel.add(btnAddDevice, "flowx,cell 1 0,alignx right,aligny center");
+			btnAddDevice.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					createArduino();
 				}
 			});
+			
+			JButton btnAddLedStrip = new JButton("Add LED Strip");
+			btnAddLedStrip.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent arg0) {
+					createLEDStrip();
+				}
+			});
+			confirmPanel.add(btnAddLedStrip, "cell 1 0,alignx right,aligny center");
+			//End Confirm Panel
 	}
 	
 	private void createArduino() {
-		AddArduinoDialog add = new AddArduinoDialog();
-		add.addWindowListener(new WindowAdapter(){
-			public void windowClosed(WindowEvent e) {
-				System.out.println("Closed");
-			}
-			
-		});
+		Arduino newArduino = new Arduino();
+		if(newArduino.isOpen()) {
+			arduinos.add(newArduino);
+			addDeviceToTree(newArduino);
+		}
+//		AddArduinoDialog add = new AddArduinoDialog();
+//		add.addWindowListener(new WindowAdapter(){
+//			public void windowClosed(WindowEvent e) {
+//				System.out.println("Closed");
+//			}
+//			
+//		});
+//		add.setVisible(true);
+//		
+//		if(!add.isCanceled()) { //If dialog box is not canceled or closed (Normal operation)
+//			Arduino newArduino = new Arduino(add.getName(), add.getPort());
+//			if(newArduino.isOpen()) { //Checks if Arduino object has properly connected to the physical arduino
+//				arduinos.add(newArduino);
+//				DefaultMutableTreeNode newNode = new DefaultMutableTreeNode(newArduino);
+//				rootTreeNode.add(newNode);
+//				tree.updateUI();
+//				tree.expandRow(0);
+//			} else { //If failed to connect
+//				JOptionPane.showMessageDialog(panel, "Failed to connect to Arduino \"" + newArduino.getName() + "\"", "Error", JOptionPane.ERROR_MESSAGE);
+//			}
+//		}
+	}
+	
+	private void addDeviceToTree(Arduino device) {
+		DefaultMutableTreeNode newNode = new DefaultMutableTreeNode(device);
+		for(LEDStrip currentStrip : device.getStrips()) {
+			newNode.add(new DefaultMutableTreeNode(currentStrip));
+		}
+		rootTreeNode.add(newNode);
+		tree.updateUI();
+		tree.expandRow(0);
+		tree.expandRow(1);
+	}
+	
+	private void createLEDStrip() {
+		AddStripDialog add = new AddStripDialog(arduinos);
 		add.setVisible(true);
 		
 		if(!add.isCanceled()) {
-			int workingIndex = 0;
-			arduinos.add(new Arduino(add.getName(), add.getPort()));
-			if(arduinos.get(arduinos.size()-1).isOpen()) {
-				bodyPanel.add(new JButton());
-			} else {
-				JOptionPane.showMessageDialog(panel, "Failed to connect to Arduino \"" + arduinos.get(arduinos.size()).getName() + "\"", "Error", JOptionPane.ERROR_MESSAGE);
-				arduinos.remove(arduinos.size());
-			}
+			Arduino parentDevice = add.getArduino();
+			String newName = add.getName();
+			int newPIN = add.getPIN();
+			int newNumOfLEDs = add.getNUM();
+			LEDStrip newStrip = new LEDStrip(newName, newNumOfLEDs, newPIN);
+			parentDevice.addStrip(newStrip);
+			
+			DefaultMutableTreeNode newNode = new DefaultMutableTreeNode(newStrip);
+			rootTreeNode.add(newNode);
+			tree.updateUI();
+//			tree.expandRow(0);
 		}
+	}
+	
+	private void updateHTML() {
+		Object selected = tree.getLastSelectedPathComponent();
+		
 	}
 	
 	public ArrayList<Arduino> getArduinos() {
 		return arduinos;
-	}
-	
-	public ArrayList<Arduino> getStrips() {
-		return strips;
 	}
 }
