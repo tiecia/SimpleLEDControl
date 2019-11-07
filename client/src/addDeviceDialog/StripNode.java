@@ -12,13 +12,13 @@ import java.awt.Component;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 public class StripNode extends JPanel {
 	private JTextField nameTextField;
 	private JTextField pinTextField;
 	private JTextField numTextField;
-	
-	private JButton btnRemove;
 	
 	private String[] data;
 
@@ -27,7 +27,7 @@ public class StripNode extends JPanel {
 	 */
 	public StripNode() {
 		setBorder(new TitledBorder(null, "LED Strip", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		setLayout(new MigLayout("", "[100px,center][grow,center]", "[grow][grow][grow][]"));
+		setLayout(new MigLayout("", "[100px,center][grow,center]", "[grow][grow][grow]"));
 		
 		JLabel lblName = new JLabel("Name");
 		add(lblName, "cell 0 0,alignx center,aligny center");
@@ -49,14 +49,6 @@ public class StripNode extends JPanel {
 		numTextField = new JTextField();
 		add(numTextField, "cell 1 2,growx,aligny center");
 		numTextField.setColumns(10);
-		
-		btnRemove = new JButton("Remove");
-		btnRemove.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				
-			}
-		});
-		add(btnRemove, "cell 1 3,alignx right,aligny center");
 	}
 	
 	public LEDStrip getStrip() {

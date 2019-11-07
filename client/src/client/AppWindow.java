@@ -6,6 +6,9 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import java.awt.GridLayout;
 import javax.swing.JTabbedPane;
+
+import createZoneDialog.CreateZoneDialog;
+
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -135,7 +138,8 @@ public class AppWindow {
 				mntmAddZone.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
 						int workingIndex = tabbedPane.getTabCount();
-						CreateZoneDialog dialog = new CreateZoneDialog(conf.getArduinos(), zones);
+						System.out.println("New Zone");
+						CreateZoneDialog dialog = new CreateZoneDialog(conf.getArduinos());
 						dialog.setModal(true);
 						dialog.setBounds(200, 200, 300, 300);
 						dialog.setVisible(true);

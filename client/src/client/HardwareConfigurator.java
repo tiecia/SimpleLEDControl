@@ -104,14 +104,6 @@ public class HardwareConfigurator extends JDialog {
 					createArduino();
 				}
 			});
-			
-			JButton btnAddLedStrip = new JButton("Add LED Strip");
-			btnAddLedStrip.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent arg0) {
-					createLEDStrip();
-				}
-			});
-			confirmPanel.add(btnAddLedStrip, "cell 1 0,alignx right,aligny center");
 			//End Confirm Panel
 	}
 	
@@ -120,28 +112,9 @@ public class HardwareConfigurator extends JDialog {
 		if(newArduino.isOpen()) {
 			arduinos.add(newArduino);
 			addDeviceToTree(newArduino);
+		} else {
+			newArduino = null;
 		}
-//		AddArduinoDialog add = new AddArduinoDialog();
-//		add.addWindowListener(new WindowAdapter(){
-//			public void windowClosed(WindowEvent e) {
-//				System.out.println("Closed");
-//			}
-//			
-//		});
-//		add.setVisible(true);
-//		
-//		if(!add.isCanceled()) { //If dialog box is not canceled or closed (Normal operation)
-//			Arduino newArduino = new Arduino(add.getName(), add.getPort());
-//			if(newArduino.isOpen()) { //Checks if Arduino object has properly connected to the physical arduino
-//				arduinos.add(newArduino);
-//				DefaultMutableTreeNode newNode = new DefaultMutableTreeNode(newArduino);
-//				rootTreeNode.add(newNode);
-//				tree.updateUI();
-//				tree.expandRow(0);
-//			} else { //If failed to connect
-//				JOptionPane.showMessageDialog(panel, "Failed to connect to Arduino \"" + newArduino.getName() + "\"", "Error", JOptionPane.ERROR_MESSAGE);
-//			}
-//		}
 	}
 	
 	private void addDeviceToTree(Arduino device) {
@@ -153,25 +126,6 @@ public class HardwareConfigurator extends JDialog {
 		tree.updateUI();
 		tree.expandRow(0);
 		tree.expandRow(1);
-	}
-	
-	private void createLEDStrip() {
-		AddStripDialog add = new AddStripDialog(arduinos);
-		add.setVisible(true);
-		
-		if(!add.isCanceled()) {
-			Arduino parentDevice = add.getArduino();
-			String newName = add.getName();
-			int newPIN = add.getPIN();
-			int newNumOfLEDs = add.getNUM();
-			LEDStrip newStrip = new LEDStrip(newName, newNumOfLEDs, newPIN);
-			parentDevice.addStrip(newStrip);
-			
-			DefaultMutableTreeNode newNode = new DefaultMutableTreeNode(newStrip);
-			rootTreeNode.add(newNode);
-			tree.updateUI();
-//			tree.expandRow(0);
-		}
 	}
 	
 	private void updateHTML() {
