@@ -64,12 +64,14 @@ public class CreateZoneDialog extends JDialog {
 //			DefaultMutableTreeNode rootNode = new DefaultMutableTreeNode("Devices");
 //			
 //			for(Arduino current : arduinos) {
-//				DefaultMutableTreeNode deviceNode = new DefaultMutableTreeNode(current);						
+//				DefaultMutableTreeNode deviceNode = new DefaultMutableTreeNode(current);
 //				for(LEDStrip strip : current.getStrips()) {
 //					deviceNode.add(new DefaultMutableTreeNode(strip));
 //				}
 //				rootNode.add(deviceNode);
 //			}
+//			
+//			tree = new JTree(rootNode);
 			
 			tree = new treeSelectionStructure(arduinos, "Devices");
 			JScrollPane scrollPane = new JScrollPane(tree);
