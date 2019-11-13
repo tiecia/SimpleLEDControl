@@ -10,9 +10,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.tree.DefaultMutableTreeNode;
 
 import client.Arduino;
-import client.ArduinoCheckBoxes;
 import client.LEDStrip;
-import client.StripCheckBoxes;
 import client.Zone;
 
 import javax.swing.JToggleButton;
@@ -26,7 +24,7 @@ import java.util.Arrays;
 import java.awt.event.ActionEvent;
 import javax.swing.JScrollPane;
 import net.miginfocom.swing.MigLayout;
-import structures.treeSelectionStructure;
+import structures.HardwareTree;
 
 import java.awt.ScrollPane;
 import javax.swing.border.BevelBorder;
@@ -39,7 +37,7 @@ public class CreateZoneDialog extends JDialog {
 	
 	private JTextField txtZoneName;
 	
-	private JTree tree;
+	private HardwareTree tree;
 
 	/**
 	 * Create the dialog.
@@ -73,7 +71,8 @@ public class CreateZoneDialog extends JDialog {
 //			
 //			tree = new JTree(rootNode);
 			
-			tree = new treeSelectionStructure(arduinos, "Devices");
+			tree = new HardwareTree(arduinos, "Devices");
+			
 			JScrollPane scrollPane = new JScrollPane(tree);
 			contentPanel.add(scrollPane, "cell 0 2,grow");
 			
