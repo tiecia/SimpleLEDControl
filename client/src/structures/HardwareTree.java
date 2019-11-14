@@ -7,6 +7,9 @@ import javax.swing.event.TreeSelectionListener;
 
 import java.awt.BorderLayout;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Vector;
+
 import javax.swing.tree.*;
 import client.Arduino;
 import client.LEDStrip;
@@ -27,8 +30,9 @@ public class HardwareTree extends JPanel implements TreeSelectionListener {
 			rootNode.add(deviceNode);
 		}
 		tree = new JTree(rootNode);
-		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
 		tree.addTreeSelectionListener(this);
+		tree.setRootVisible(false);
 		super.setLayout(new BorderLayout());
 		super.add(tree);
 	}
@@ -38,9 +42,26 @@ public class HardwareTree extends JPanel implements TreeSelectionListener {
 	}
 
 	public void valueChanged(TreeSelectionEvent arg0) {
-		DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();		
-		for(int i = 0; i<selectedNode.getChildCount(); i++) {
-			selectedNode.getChildAt(i);
+		DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
+		ArrayList<TreePath> pathsToSelect = new ArrayList<>();
+		if(!selectedNode.isLeaf()) {
+			if(!(selectedNode == rootNode)) {
+				TreePath[] prevSelectedNodes = tree.getSelectionPaths();
+				for(TreePath path : prevSelectedNodes) {
+					pathsToSelect.add(path);
+				}
+				
+				for(int i = 0; i<selectedNode.getChildCount(); i++) {
+					TreeNode[] path = {rootNode, selectedNode, selectedNode.getChildAt(i)};
+					pathsToSelect.add(new TreePath(path));
+					System.out.println(pathsToSelect.get(pathsToSelect.size()-1));
+				}
+				TreePath[] childPathsArray = new TreePath[pathsToSelect.size()];
+
+				pathsToSelect.toArray(childPathsArray);
+				System.out.println(Arrays.toString(childPathsArray));
+				tree.setSelectionPaths(childPathsArray);
+			}
 		}
 	}
 }
