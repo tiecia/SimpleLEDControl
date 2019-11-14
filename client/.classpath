@@ -3,7 +3,7 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="/LED/miglayout15-swing.jar" sourcepath="/LED/miglayout-src.zip"/>
-	<classpathentry kind="lib" path="C:/git/SimpleLEDControl/jgoodies-forms-1.8.0.jar"/>
-	<classpathentry kind="lib" path="C:/git/SimpleLEDControl/jSerialComm-2.4.0.jar"/>
+	<classpathentry kind="lib" path="C:/git/SimpleLEDControl/client/jgoodies-forms-1.8.0.jar"/>
+	<classpathentry kind="lib" path="C:/git/SimpleLEDControl/client/jSerialComm-2.4.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
