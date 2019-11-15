@@ -19,8 +19,13 @@ public class HardwareTree extends JPanel implements TreeSelectionListener {
 	private DefaultMutableTreeNode rootNode;
 	private JTree tree;
 	
+	private ArrayList<TreePath> selectedNodes;
+	
 	public HardwareTree(ArrayList<Arduino> arduinos, String rootName) {
 		super();
+		
+		selectedNodes = new ArrayList<TreePath>();
+		
 		rootNode = new DefaultMutableTreeNode(rootName); //Root Node
 		for(Arduino current : arduinos) {
 			DefaultMutableTreeNode deviceNode = new DefaultMutableTreeNode(current); //Create a new node for each arduino					
@@ -30,7 +35,8 @@ public class HardwareTree extends JPanel implements TreeSelectionListener {
 			rootNode.add(deviceNode);
 		}
 		tree = new JTree(rootNode);
-		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
+//		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
+		tree.setSelectionModel(new HardwareTreeSelectionModel());
 		tree.addTreeSelectionListener(this);
 		tree.setRootVisible(false);
 		super.setLayout(new BorderLayout());
@@ -43,25 +49,27 @@ public class HardwareTree extends JPanel implements TreeSelectionListener {
 
 	public void valueChanged(TreeSelectionEvent arg0) {
 		DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
-		ArrayList<TreePath> pathsToSelect = new ArrayList<>();
-		if(!selectedNode.isLeaf()) {
-			if(!(selectedNode == rootNode)) {
-				TreePath[] prevSelectedNodes = tree.getSelectionPaths();
-				for(TreePath path : prevSelectedNodes) {
-					pathsToSelect.add(path);
+		TreeNode[] selectedNodePathArray = {rootNode, selectedNode};
+		TreePath selectedNodePath = new TreePath(selectedNodePathArray);
+		if(!selectedNode.isLeaf() && !(selectedNode == rootNode)) {
+			for(int i = 0; i<selectedNode.getChildCount(); i++) {
+				TreeNode[] path = {rootNode, selectedNode, selectedNode.getChildAt(i)};
+				TreePath newSelectionPath = new TreePath(path);
+				if(!selectedNodes.contains(newSelectionPath)) {
+					selectedNodes.add(newSelectionPath);
 				}
-				
-				for(int i = 0; i<selectedNode.getChildCount(); i++) {
-					TreeNode[] path = {rootNode, selectedNode, selectedNode.getChildAt(i)};
-					pathsToSelect.add(new TreePath(path));
-					System.out.println(pathsToSelect.get(pathsToSelect.size()-1));
-				}
-				TreePath[] childPathsArray = new TreePath[pathsToSelect.size()];
-
-				pathsToSelect.toArray(childPathsArray);
-				System.out.println(Arrays.toString(childPathsArray));
-				tree.setSelectionPaths(childPathsArray);
 			}
+			selectNodes(selectedNodes);
+		} else {
+			selectedNodes.remove(selectedNodePath);
 		}
+	}
+	
+	private void selectNodes(ArrayList<TreePath> nodes) {
+		System.out.println(selectedNodes);
+		TreePath[] childPathsArray = new TreePath[selectedNodes.size()];
+		selectedNodes.toArray(childPathsArray);
+		System.out.println(Arrays.toString(childPathsArray));
+		tree.setSelectionPaths(childPathsArray);
 	}
 }

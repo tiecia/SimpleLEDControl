@@ -58,19 +58,7 @@ public class CreateZoneDialog extends JDialog {
 			getContentPane().add(contentPanel, BorderLayout.CENTER);
 			contentPanel.setLayout(new MigLayout("", "[141px,grow]", "[][][218px,grow]"));
 
-			
-//			DefaultMutableTreeNode rootNode = new DefaultMutableTreeNode("Devices");
-//			
-//			for(Arduino current : arduinos) {
-//				DefaultMutableTreeNode deviceNode = new DefaultMutableTreeNode(current);
-//				for(LEDStrip strip : current.getStrips()) {
-//					deviceNode.add(new DefaultMutableTreeNode(strip));
-//				}
-//				rootNode.add(deviceNode);
-//			}
-//			
-//			tree = new JTree(rootNode);
-			
+						
 			tree = new HardwareTree(arduinos, "Devices");
 			
 			JScrollPane scrollPane = new JScrollPane(tree);
