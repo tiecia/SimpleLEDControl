@@ -8,6 +8,7 @@ import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreePath;
 
 import client.Arduino;
 import client.LEDStrip;
@@ -21,6 +22,7 @@ import javax.swing.JTextField;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.awt.event.ActionEvent;
 import javax.swing.JScrollPane;
 import net.miginfocom.swing.MigLayout;
@@ -38,6 +40,8 @@ public class CreateZoneDialog extends JDialog {
 	private JTextField txtZoneName;
 	
 	private HardwareTree tree;
+	
+	private Zone createdZone;
 
 	/**
 	 * Create the dialog.
@@ -118,13 +122,21 @@ public class CreateZoneDialog extends JDialog {
 		
 	}
 	
+	public Zone getZone() {
+		return createdZone;
+	}
+	
 	/*
 	 * 
 	 * Buttons Triggers
 	 * 
 	 */
 	private void okButtonTrigger() {
-		
+		ArrayList<Object> newZoneStrips = new ArrayList<>();
+		for(Object strip : tree.getSelectedObjects()) {
+			newZoneStrips.add(strip);
+		}
+		createdZone = new Zone(txtZoneName.getText(), newZoneStrips);
 	}
 	
 	private void cancelButtonTrigger() {

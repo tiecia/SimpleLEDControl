@@ -144,6 +144,10 @@ public class AppWindow {
 						dialog.setBounds(200, 200, 300, 300);
 						dialog.setVisible(true);
 						
+						dialog.setVisible(false);
+						zones.add(dialog.getZone());
+						
+						
 						
 						System.out.println("Zones" + zones);
 						if(zones.size() != 0) {

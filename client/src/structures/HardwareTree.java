@@ -2,6 +2,7 @@ package structures;
 
 import javax.swing.JPanel;
 import javax.swing.JTree;
+import javax.swing.UIManager;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 
@@ -39,6 +40,7 @@ public class HardwareTree extends JPanel implements TreeSelectionListener {
 		tree.setSelectionModel(new HardwareTreeSelectionModel());
 		tree.addTreeSelectionListener(this);
 		tree.setRootVisible(false);
+		tree.setToggleClickCount(0);
 		super.setLayout(new BorderLayout());
 		super.add(tree);
 	}
@@ -46,30 +48,74 @@ public class HardwareTree extends JPanel implements TreeSelectionListener {
 	public void add(Arduino newArduino) {
 		
 	}
+	
+	public TreePath[] getSelectionPaths() {
+		return tree.getSelectionPaths();
+	}
+	
+	public ArrayList<Object> getSelectedObjects() {
+		ArrayList<Object> selectedObjects = new ArrayList<>();
+		for(TreePath objPath : tree.getSelectionPaths()) {
+			selectedObjects.add(objPath.getLastPathComponent());
+		}
+		return selectedObjects;
+	}
 
 	public void valueChanged(TreeSelectionEvent arg0) {
 		DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
-		TreeNode[] selectedNodePathArray = {rootNode, selectedNode};
-		TreePath selectedNodePath = new TreePath(selectedNodePathArray);
-		if(!selectedNode.isLeaf() && !(selectedNode == rootNode)) {
-			for(int i = 0; i<selectedNode.getChildCount(); i++) {
-				TreeNode[] path = {rootNode, selectedNode, selectedNode.getChildAt(i)};
-				TreePath newSelectionPath = new TreePath(path);
-				if(!selectedNodes.contains(newSelectionPath)) {
-					selectedNodes.add(newSelectionPath);
+
+		if(!selectedNode.isLeaf() && !(selectedNode == rootNode)) { //If clicked node is an arduino node
+			TreeNode[] selectedNodePathArray = {rootNode, selectedNode};
+			TreePath selectedNodePath = new TreePath(selectedNodePathArray);
+			
+			if(isAllLeafNodesSelected(selectedNode)) { //If all leaf nodes are selected deselect all leaf nodes
+				for(int i = 0; i<selectedNode.getChildCount(); i++) {
+					TreeNode[] path = {rootNode, selectedNode, selectedNode.getChildAt(i)};
+					TreePath newSelectionPath = new TreePath(path);
+					selectedNodes.remove(newSelectionPath);
+				}
+			} else { //If not all leaf nodes are selected select all leaf nodes
+				for(int i = 0; i<selectedNode.getChildCount(); i++) {
+					TreeNode[] path = {rootNode, selectedNode, selectedNode.getChildAt(i)};
+					TreePath newSelectionPath = new TreePath(path);
+					if(!selectedNodes.contains(newSelectionPath)) {
+						selectedNodes.add(newSelectionPath);
+					}
 				}
 			}
-			selectNodes(selectedNodes);
-		} else {
-			selectedNodes.remove(selectedNodePath);
+
+			selectNodes();
+		} else { //If the clicked node is a leaf node
+			TreeNode[] selectedNodePathArray = {rootNode, selectedNode.getParent(), selectedNode};
+			TreePath selectedNodePath = new TreePath(selectedNodePathArray);
+			System.out.println(selectedNode);
+			if(selectedNodes.contains(selectedNodePath)) {
+				selectedNodes.remove(selectedNodePath);
+			} else {
+				selectedNodes.add(selectedNodePath);
+			}
+			selectNodes();
 		}
 	}
 	
-	private void selectNodes(ArrayList<TreePath> nodes) {
+	private boolean isAllLeafNodesSelected(DefaultMutableTreeNode selectedNode) {
+		for(int i = 0; i<selectedNode.getChildCount(); i++) { //Goes through the leaf nodes of selected parent node to see if they are all selected
+			TreeNode[] path = {rootNode, selectedNode, selectedNode.getChildAt(i)};
+			TreePath newSelectionPath = new TreePath(path);
+			if(!selectedNodes.contains(newSelectionPath)) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	private void selectNodes() {
+		tree.removeTreeSelectionListener(this);
 		System.out.println(selectedNodes);
 		TreePath[] childPathsArray = new TreePath[selectedNodes.size()];
 		selectedNodes.toArray(childPathsArray);
 		System.out.println(Arrays.toString(childPathsArray));
 		tree.setSelectionPaths(childPathsArray);
+		tree.addTreeSelectionListener(this);
 	}
 }

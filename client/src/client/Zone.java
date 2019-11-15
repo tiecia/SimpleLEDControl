@@ -46,13 +46,15 @@ public class Zone extends JInternalFrame {
 	private JLabel portLabel = new JLabel();
 	
 	
-	private ArrayList<Arduino> arduinos  = new ArrayList<Arduino>();
+	private ArrayList<Object> strips;
 	
-	public Zone(String name, ArrayList<Arduino> arduinos) {
+	public Zone(String name, ArrayList<Object> strips) {
 		super(name);
+		strips = new ArrayList<>();
 		zoneName = name;
-		this.arduinos = arduinos;
+		this.strips = strips;
 		GuiInit();
+		System.out.println(strips);
 	}
 	
 	public String toString() {
@@ -68,9 +70,9 @@ public class Zone extends JInternalFrame {
 		return zoneName;
 	}
 	
-	public void sendDataToArduino() {
-		for(int i = 0; i<arduinos.size(); i++) {
-			arduinos.get(i).sendData(sliderBrightness.getValue(), sliderRed.getValue(), sliderGreen.getValue(), sliderBlue.getValue());
+	public void sendDataToStrips() {
+		for(int i = 0; i<strips.size(); i++) {
+			strips.get(i).sendData(sliderBrightness.getValue(), sliderRed.getValue(), sliderGreen.getValue(), sliderBlue.getValue());
 		}
 	}
 	
