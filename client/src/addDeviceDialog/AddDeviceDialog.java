@@ -143,12 +143,16 @@ public class AddDeviceDialog extends JDialog {
 	}
 	
 	private void ok() {
+		setVisible(false);
 		port = new LEDPort(deviceComField.getText());
 		if(port.isOpen()) {
 			canceled = false;
-			setVisible(false);
+			for(StripNode stripNode : stripNodes) { //Gives each LEDStrip in the arduino its corresponding port
+				stripNode.getStrip().setPort(port);
+			}
 		} else {
 			JOptionPane.showMessageDialog(getContentPane(), "Failed to connect to device on port \"" + deviceComField.getText() + "\"", "Error", JOptionPane.ERROR_MESSAGE);
+			setVisible(true);
 		}
 	}
 	

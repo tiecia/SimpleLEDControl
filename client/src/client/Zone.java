@@ -22,6 +22,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 import java.awt.event.ActionEvent;
 import javax.swing.JToolBar;
 import javax.swing.JSeparator;
@@ -37,6 +39,7 @@ public class Zone extends JInternalFrame {
 	private int numOfButtons = 0;
 	private String zoneName;
 	
+	private Set<LEDPort> zonePorts;
 	
 	//GUI Components
 	private JSlider sliderBrightness = new JSlider();
@@ -51,10 +54,13 @@ public class Zone extends JInternalFrame {
 	public Zone(String name, ArrayList<Object> strips) {
 		super(name);
 		strips = new ArrayList<>();
+		zonePorts = new HashSet<>();
 		zoneName = name;
 		this.strips = strips;
+		for(Object strip : strips) {
+			zonePorts.add(strip);
+		}
 		GuiInit();
-		System.out.println(strips);
 	}
 	
 	public String toString() {

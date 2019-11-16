@@ -20,7 +20,7 @@ public class Arduino {
 	
 	private AddDeviceDialog addDialog;
 	
-	public Arduino() {
+	public Arduino() { //Opens the add device dialog, if port successfully connected then it gets the information from the dialog and initializes itself
 		addDialog = new AddDeviceDialog();
 		addDialog.setVisible(true);
 		//Wait for user
