@@ -53,12 +53,14 @@ public class HardwareTree extends JPanel implements TreeSelectionListener {
 		return tree.getSelectionPaths();
 	}
 	
-	public ArrayList<Object> getSelectedObjects() {
-		ArrayList<Object> selectedObjects = new ArrayList<>();
-		for(TreePath objPath : tree.getSelectionPaths()) {
-			selectedObjects.add(objPath.getLastPathComponent());
+	public ArrayList<LEDStrip> getSelectedStrips() {
+		ArrayList<LEDStrip> selectedStrips = new ArrayList<>();
+		for(TreePath path : selectedNodes) {
+			DefaultMutableTreeNode lastPathObject = (DefaultMutableTreeNode) path.getLastPathComponent();
+			selectedStrips.add((LEDStrip) lastPathObject.getUserObject());
 		}
-		return selectedObjects;
+		System.out.println("Selected Strips in HardwareTree" + selectedStrips);
+		return selectedStrips;
 	}
 
 	public void valueChanged(TreeSelectionEvent arg0) {

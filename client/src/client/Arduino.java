@@ -28,6 +28,9 @@ public class Arduino {
 			this.strips = addDialog.getStrips();
 			this.name = addDialog.getDeviceName();
 			this.port = addDialog.getDevicePort();
+			for(LEDStrip strip : strips) {
+				strip.setParentArduino(this);
+			}
 		}
 	}
 	
@@ -59,8 +62,8 @@ public class Arduino {
 		return name;
 	}
 	
-	public String getPort() {
-		return port.getPort();
+	public LEDPort getPort() {
+		return port;
 	}
 	
 	public ArrayList<LEDStrip> getStrips(){

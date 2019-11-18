@@ -22,6 +22,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 import java.awt.event.ActionEvent;
 import javax.swing.JToolBar;
 import javax.swing.JSeparator;
@@ -45,16 +47,18 @@ public class Zone extends JInternalFrame {
 	private JSlider sliderBlue = new JSlider();
 	private JLabel portLabel = new JLabel();
 	
+	private Set<LEDPort> ports;
+	private ArrayList<LEDStrip> strips;
 	
-	private ArrayList<Object> strips;
-	
-	public Zone(String name, ArrayList<Object> strips) {
+	public Zone(String name, ArrayList<LEDStrip> strips) {
 		super(name);
-		strips = new ArrayList<>();
-		zoneName = name;
+		this.zoneName = name;
 		this.strips = strips;
+		this.ports = new HashSet<LEDPort>();
+		for(LEDStrip strip : this.strips) {
+			ports.add(strip.getParentArduino().getPort());
+		}
 		GuiInit();
-		System.out.println(strips);
 	}
 	
 	public String toString() {
@@ -70,9 +74,10 @@ public class Zone extends JInternalFrame {
 		return zoneName;
 	}
 	
-	public void sendDataToStrips() {
-		for(int i = 0; i<strips.size(); i++) {
-			strips.get(i).sendData(sliderBrightness.getValue(), sliderRed.getValue(), sliderGreen.getValue(), sliderBlue.getValue());
+	public void sendData() {
+		for(LEDStrip strip : this.strips) {
+			LEDPort currentPort = strip.getParentArduino().getPort();
+			currentPort.sendData(strip.getPin(), sliderBrightness.getValue(), sliderRed.getValue(), sliderGreen.getValue(), sliderBlue.getValue());
 		}
 	}
 	
@@ -393,7 +398,7 @@ public class Zone extends JInternalFrame {
 			public void stateChanged(ChangeEvent e) {
 				textBrightness.setText("" + sliderBrightness.getValue());
 				//port.sendData(sliderBrightness.getValue(), sliderRed.getValue(), sliderGreen.getValue(), sliderBlue.getValue());
-				sendDataToArduino();
+				sendData();
 			}
 		});
 		
@@ -401,7 +406,7 @@ public class Zone extends JInternalFrame {
 			public void stateChanged(ChangeEvent e) {
 				textRed.setText("" + sliderRed.getValue());
 				//port.sendData(sliderBrightness.getValue(), sliderRed.getValue(), sliderGreen.getValue(), sliderBlue.getValue());
-				sendDataToArduino();
+				sendData();
 			}
 		});
 		
@@ -409,7 +414,7 @@ public class Zone extends JInternalFrame {
 			public void stateChanged(ChangeEvent e) {
 				textGreen.setText("" + sliderGreen.getValue());
 //				port.sendData(sliderBrightness.getValue(), sliderRed.getValue(), sliderGreen.getValue(), sliderBlue.getValue());
-				sendDataToArduino();
+				sendData();
 			}
 		});
 		
@@ -417,7 +422,7 @@ public class Zone extends JInternalFrame {
 		public void stateChanged(ChangeEvent e) {
 			textBlue.setText("" + sliderBlue.getValue());
 //			port.sendData(sliderBrightness.getValue(), sliderRed.getValue(), sliderGreen.getValue(), sliderBlue.getValue());
-			sendDataToArduino();
+			sendData();
 
 		}
 		});

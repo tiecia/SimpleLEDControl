@@ -132,11 +132,9 @@ public class CreateZoneDialog extends JDialog {
 	 * 
 	 */
 	private void okButtonTrigger() {
-		ArrayList<Object> newZoneStrips = new ArrayList<>();
-		for(Object strip : tree.getSelectedObjects()) {
-			newZoneStrips.add(strip);
-		}
-		createdZone = new Zone(txtZoneName.getText(), newZoneStrips);
+		System.out.println("Selected strips in CreateZoneDialog: " + tree.getSelectedStrips());
+		createdZone = new Zone(txtZoneName.getText(), tree.getSelectedStrips());
+		this.setVisible(false);
 	}
 	
 	private void cancelButtonTrigger() {
