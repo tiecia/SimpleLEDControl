@@ -9,7 +9,7 @@ import com.fazecast.jSerialComm.SerialPortEvent;
 public class SerialTestSimplify {
 
 	public static void main(String[] args) throws InterruptedException {
-		SerialPort port = SerialPort.getCommPort("COM5");
+		SerialPort port = SerialPort.getCommPort("COM6");
 		port.openPort();
 		port.setBaudRate(115200);
 		if(!port.isOpen()) {
@@ -53,7 +53,7 @@ public class SerialTestSimplify {
 			
 			Thread.sleep(10);
 			
-			writeBuffer[0] = (byte) 5;
+			writeBuffer[0] = (byte) 6;
 			writeBuffer[1] = (byte) 100;
 			writeBuffer[2] = (byte) 0;
 			writeBuffer[3] = (byte) 255;

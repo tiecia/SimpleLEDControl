@@ -51,18 +51,18 @@ public class LEDPort {
 	
 	
 	public void sendData(int stripPin, int brightnessValue, int redValue, int greenValue, int blueValue) {
-		byte[] writeBuffer = new byte[4];
-		writeBuffer[0] = (byte) brightnessValue;
-		writeBuffer[1] = (byte) redValue;
-		writeBuffer[2] = (byte) greenValue;
-		writeBuffer[3] = (byte) blueValue;
+		byte[] writeBuffer = new byte[5];
+		writeBuffer[0] = (byte) stripPin;
+		writeBuffer[1] = (byte) brightnessValue;
+		writeBuffer[2] = (byte) redValue;
+		writeBuffer[3] = (byte) greenValue;
+		writeBuffer[4] = (byte) blueValue;
 		System.out.println(Arrays.toString(writeBuffer));
 		port.writeBytes(writeBuffer, writeBuffer.length);
 		
 		try {
-			Thread.sleep(5);
+			Thread.sleep(10);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

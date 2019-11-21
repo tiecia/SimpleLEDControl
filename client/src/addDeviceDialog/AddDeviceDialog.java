@@ -18,14 +18,16 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.border.TitledBorder;
 
+import com.fazecast.jSerialComm.SerialPort;
+
 import client.*;
 
 import javax.swing.JScrollPane;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import javax.swing.JComboBox;
 
 public class AddDeviceDialog extends JDialog {
-	private JTextField deviceComField;
 	private JTextField deviceNameField;
 	
 	private boolean canceled;
@@ -35,6 +37,8 @@ public class AddDeviceDialog extends JDialog {
 	private LEDPort port;
 	
 	private ArrayList<StripNode> stripNodes;
+	private JComboBox<String> portComboBox;
+	private JComboBox<String> deviceComboBox;
 
 	/**
 	 * Launch the application.
@@ -66,26 +70,39 @@ public class AddDeviceDialog extends JDialog {
 				JPanel devicePanel = new JPanel();
 				devicePanel.setBorder(new TitledBorder(null, "Device Information", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 				contentPanel.add(devicePanel, "cell 0 0,growx,aligny top");
-				devicePanel.setLayout(new MigLayout("", "[100,left][96px,grow,left]", "[][20px][20px]"));
+				devicePanel.setLayout(new MigLayout("", "[100,left][96px,grow,left]", "[][][][20px][20px]"));
+				{
+					JLabel lblDeviceType = new JLabel("Device Type");
+					devicePanel.add(lblDeviceType, "cell 0 1,alignx center,aligny center");
+				}
+				{
+					deviceComboBox = new JComboBox<String>();
+					devicePanel.add(deviceComboBox, "cell 1 1,growx");
+					deviceComboBox.addItem("Arduino Uno/Nano");
+				}
 				{
 					JLabel deviceCOMLabel = new JLabel("COM Port");
 					deviceCOMLabel.setHorizontalAlignment(SwingConstants.CENTER);
-					devicePanel.add(deviceCOMLabel, "cell 0 1,alignx center,aligny center");
+					devicePanel.add(deviceCOMLabel, "cell 0 3,alignx center,aligny center");
 				}
 				{
-					deviceComField = new JTextField();
-					deviceComField.setColumns(10);
-					devicePanel.add(deviceComField, "cell 1 1,growx,aligny center");
+					portComboBox = new JComboBox<String>();
+					for(SerialPort port : SerialPort.getCommPorts()) {
+						System.out.println(port.getDescriptivePortName());
+						portComboBox.addItem(port.getSystemPortName());
+					}
+					devicePanel.add(portComboBox, "cell 1 3,growx");
+					
 				}
 				{
 					JLabel deviceNameLabel = new JLabel("Name");
 					deviceNameLabel.setHorizontalAlignment(SwingConstants.CENTER);
-					devicePanel.add(deviceNameLabel, "cell 0 2,alignx center,aligny center");
+					devicePanel.add(deviceNameLabel, "cell 0 4,alignx center,aligny center");
 				}
 				{
 					deviceNameField = new JTextField();
 					deviceNameField.setColumns(10);
-					devicePanel.add(deviceNameField, "cell 1 2,growx,aligny center");
+					devicePanel.add(deviceNameField, "cell 1 4,growx,aligny center");
 				}
 			}
 			{
@@ -143,12 +160,12 @@ public class AddDeviceDialog extends JDialog {
 	}
 	
 	private void ok() {
-		port = new LEDPort(deviceComField.getText());
+		port = new LEDPort((String) portComboBox.getSelectedItem());
 		if(port.isOpen()) {
 			canceled = false;
 			setVisible(false);
 		} else {
-			JOptionPane.showMessageDialog(getContentPane(), "Failed to connect to device on port \"" + deviceComField.getText() + "\"", "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(getContentPane(), "Failed to connect to device on port \"" + portComboBox.getSelectedItem() + "\"", "Error", JOptionPane.ERROR_MESSAGE);
 		}
 	}
 	

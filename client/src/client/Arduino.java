@@ -77,8 +77,4 @@ public class Arduino {
 	public void addStrip(LEDStrip newStrip) {
 		strips.add(newStrip);
 	}
-	
-	public void sendData(int brightnessValue, int redValue, int greenValue, int blueValue) {
-		port.sendData(brightnessValue, redValue, greenValue, blueValue);
-	}
 }
