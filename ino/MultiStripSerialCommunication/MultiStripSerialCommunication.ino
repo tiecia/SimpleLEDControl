@@ -7,7 +7,7 @@
 
 
 #define DATA_PIN 5
-#define NUM_LEDS 10
+#define NUM_LEDS 20
 #define NUM_STRIPS 14
 
 int numOfUsableStrips;
@@ -19,25 +19,25 @@ int red;
 int green;
 int blue;
 
-CRGB leds[14][NUM_LEDS];
+CRGB leds[2][NUM_LEDS];
 
 void setup()
 {
     Serial.begin(115200);
     FastLED.addLeds<NEOPIXEL, 0>(leds[0], NUM_LEDS);
     FastLED.addLeds<NEOPIXEL, 1>(leds[1], NUM_LEDS);
-    FastLED.addLeds<NEOPIXEL, 2>(leds[2], NUM_LEDS);
-    FastLED.addLeds<NEOPIXEL, 3>(leds[3], NUM_LEDS);
-    FastLED.addLeds<NEOPIXEL, 4>(leds[4], NUM_LEDS);
-    FastLED.addLeds<NEOPIXEL, 5>(leds[5], NUM_LEDS);
-    FastLED.addLeds<NEOPIXEL, 6>(leds[6], NUM_LEDS);
-    FastLED.addLeds<NEOPIXEL, 7>(leds[7], NUM_LEDS);
-    FastLED.addLeds<NEOPIXEL, 8>(leds[8], NUM_LEDS);
-    FastLED.addLeds<NEOPIXEL, 9>(leds[9], NUM_LEDS);
-    FastLED.addLeds<NEOPIXEL, 10>(leds[10], NUM_LEDS);
-    FastLED.addLeds<NEOPIXEL, 11>(leds[11], NUM_LEDS);
-    FastLED.addLeds<NEOPIXEL, 12>(leds[12], NUM_LEDS);
-    FastLED.addLeds<NEOPIXEL, 13>(leds[13], NUM_LEDS);
+//    FastLED.addLeds<NEOPIXEL, 2>(leds[2], NUM_LEDS);
+//    FastLED.addLeds<NEOPIXEL, 3>(leds[3], NUM_LEDS);
+//    FastLED.addLeds<NEOPIXEL, 4>(leds[4], NUM_LEDS);
+//    FastLED.addLeds<NEOPIXEL, 5>(leds[5], NUM_LEDS);
+//    FastLED.addLeds<NEOPIXEL, 6>(leds[6], NUM_LEDS);
+//    FastLED.addLeds<NEOPIXEL, 7>(leds[7], NUM_LEDS);
+//    FastLED.addLeds<NEOPIXEL, 8>(leds[8], NUM_LEDS);
+//    FastLED.addLeds<NEOPIXEL, 9>(leds[9], NUM_LEDS);
+//    FastLED.addLeds<NEOPIXEL, 10>(leds[10], NUM_LEDS);
+//    FastLED.addLeds<NEOPIXEL, 11>(leds[11], NUM_LEDS);
+//    FastLED.addLeds<NEOPIXEL, 12>(leds[12], NUM_LEDS);
+//    FastLED.addLeds<NEOPIXEL, 13>(leds[13], NUM_LEDS);
     FastLED.clear(true);
 
     numOfUsableStrips = 1;
