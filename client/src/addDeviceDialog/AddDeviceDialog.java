@@ -26,6 +26,7 @@ import javax.swing.JScrollPane;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import javax.swing.JComboBox;
+import javax.swing.JList;
 
 public class AddDeviceDialog extends JDialog {
 	
@@ -67,18 +68,18 @@ public class AddDeviceDialog extends JDialog {
 	 * Create the dialog.
 	 */
 	public AddDeviceDialog() {
-		setResizable(false);
+		setResizable(true);
 		maxWindowHeight = (int) (getBounds().getX()-300);
 		stripNodes = new ArrayList<>();
 		setModal(true);
-		setBounds(100, 100, 500, 360);
+		setBounds(100, 100, 500, 372);
 		getContentPane().setLayout(new BorderLayout());
 		
 		//CONTENT PANEL
 		JPanel contentPanel = new JPanel();
 		scrollPane = new JScrollPane(contentPanel);
 		getContentPane().add(scrollPane, BorderLayout.CENTER);
-		contentPanel.setLayout(new MigLayout("", "[434px,grow]", "[57.00px][74px][23px,grow]"));
+		contentPanel.setLayout(new MigLayout("", "[434px,grow]", "[57.00px][74px][grow]"));
 		
 		//DEVICE PANEL
 		JPanel devicePanel = new JPanel();
@@ -128,11 +129,6 @@ public class AddDeviceDialog extends JDialog {
 		//Add Initial Strip Node (Cannot Be Removed)
 		stripNodes.add(new StripNode(true));
 		stripPanel.add(stripNodes.get(stripNodes.size()-1), "cell 0 0,grow");
-		
-		//Add Strip Button (Located In Content Panel)
-		JButton btnAddStrip = new JButton("Add Strip");
-		btnAddStrip.addActionListener(addStripAction);
-		contentPanel.add(btnAddStrip, "cell 0 2,alignx center,aligny bottom");
 			
 		//BUTTON PANE (OK and Cancel Buttons)
 		JPanel buttonPane = new JPanel();
@@ -146,6 +142,11 @@ public class AddDeviceDialog extends JDialog {
 				ok();
 			}
 		});
+		
+		//Add Strip Button (Located In Content Panel)
+		JButton btnAddStrip = new JButton("Add Strip");
+		buttonPane.add(btnAddStrip);
+		btnAddStrip.addActionListener(addStripAction);
 		okButton.setActionCommand("OK");
 		buttonPane.add(okButton);
 		getRootPane().setDefaultButton(okButton);
