@@ -1,0 +1,17 @@
+layout
+hardware
+1
+Arduino
+COM8
+1
+Front
+2
+11
+zones
+1
+All
+1
+Front
+COM8
+2
+11

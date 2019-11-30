@@ -2,12 +2,14 @@ package client;
 
 import java.awt.EventQueue;
 
+import javax.swing.AbstractAction;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import java.awt.GridLayout;
 import javax.swing.JTabbedPane;
 
 import createZoneDialog.CreateZoneDialog;
+import javafx.scene.shape.Path;
 
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
@@ -15,12 +17,18 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.PrintStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.InputMismatchException;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 import java.awt.event.ActionEvent;
@@ -33,17 +41,24 @@ public class AppWindow {
 	private int numOfTabs = 0;
 
 	private JTabbedPane tabbedPane = null;
+	private WelcomePanel welcomeScreen = null;
 
-
-
-	private JMenuItem mntmRenameZone = new JMenuItem("Rename Zone");
-	private JMenuItem mntmSaveLayout = new JMenuItem("Save Layout");
-	private JMenuItem mntmDeleteZone = new JMenuItem("Delete Zone");
+	private JMenuItem mntmRenameZone = new JMenuItem();
+	private JMenuItem mntmSaveLayout = new JMenuItem();
+	private JMenuItem mntmDeleteZone = new JMenuItem();
 	
 	private HardwareConfigurator conf = new HardwareConfigurator();
 	
 	private ArrayList<Zone> zones = new ArrayList<Zone>();
 	
+	//Actions
+	private AddZoneAction addZoneAction = new AddZoneAction();
+	private RenameZoneAction renameZoneAction = new RenameZoneAction();
+	private RemoveZoneAction removeZoneAction = new RemoveZoneAction();
+	
+	//Action Listeners
+	private LoadLayoutListener loadLayoutListener = new LoadLayoutListener();
+	private ConfigureHardwareListener configureHardwareListener = new ConfigureHardwareListener();
 
 	/**
 	 * Launch the application.
@@ -66,14 +81,18 @@ public class AppWindow {
 	 */
 
 	public AppWindow() {
+		File toCreate = new File("C:\\git\\SimpleLEDControl\\default");
+		toCreate.mkdirs();
 		initialize();
+//		openLayoutFromFile(new File("C:\\git\\SimpleLEDControl\\default\\defaultLayout.txt"));
 	}
 
 	/**
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
-
+		welcomeScreen =  new WelcomePanel(configureHardwareListener, addZoneAction, loadLayoutListener);
+		
 		/*
 		 * Frame
 		 */
@@ -82,13 +101,20 @@ public class AppWindow {
 		frame.setBounds(100, 100, 807, 705);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(new GridLayout(1, 0, 0, 0));
+		frame.addWindowListener(new WindowAdapter() {
+			public void windowClosing(WindowEvent e) {
+				File def = new File("C:\\git\\SimpleLEDControl\\default\\defaultLayout.txt");
+//				saveLayoutToFile(def);
+				conf.closeAllDevices();
+			}
+		});
 
 		/*
 		 * Tabbed Pane
 		 */
 
 		tabbedPane = new JTabbedPane(JTabbedPane.TOP);
-		frame.getContentPane().add(tabbedPane);
+//		frame.getContentPane().add(tabbedPane);
 
 		/*
 		 * Menu Bar
@@ -99,94 +125,23 @@ public class AppWindow {
 		frame.setJMenuBar(menuBar);
 		JSeparator separator = new JSeparator();
 
-			// File Button
-			JMenu mnFile = new JMenu("File");
-			menuBar.add(mnFile);
-			
-				// Rename Zone
-				mntmRenameZone.setEnabled(false);
-				mntmRenameZone.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						int currentIndex = tabbedPane.getSelectedIndex();
-						String currentName = tabbedPane.getTitleAt(currentIndex);
-						String newName = JOptionPane.showInputDialog(frame, "Rename Zone", currentName);
-						if (newName != null) {
-							zones.get(currentIndex).setZoneName(newName);
-							tabbedPane.setTitleAt(currentIndex, newName);
-						}
-					}
-				});
-	
-				// Save Layout
-				mntmSaveLayout.setEnabled(false);
-				mntmSaveLayout.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						
-					}
-				});
-	
-				// Delete Zone
-				mntmDeleteZone.setEnabled(false);
-				mntmDeleteZone.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						
-					}
-				});
-	
-				//Add Zone
-				JMenuItem mntmAddZone = new JMenuItem("Add Zone");
-				mntmAddZone.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						int workingIndex = tabbedPane.getTabCount();
-						System.out.println("New Zone");
-						CreateZoneDialog dialog = new CreateZoneDialog(conf.getArduinos());
-						dialog.setModal(true);
-						dialog.setBounds(200, 200, 300, 300);
-						dialog.setVisible(true);
-						
-						zones.add(dialog.getZone());
-						
-						
-						
-						System.out.println("Zones" + zones);
-						if(zones.size() != 0) {
-							numOfTabs++;
-							mntmRenameZone.setEnabled(true);
-							mntmDeleteZone.setEnabled(true);
-							mntmSaveLayout.setEnabled(true);
-							System.out.println("Zone Name: " + zones.get(workingIndex).getName());
-							tabbedPane.addTab(zones.get(workingIndex).getName(), zones.get(workingIndex));
-							System.out.println("Zones" + zones);
-						} else {
-							System.out.println("Is Empty");
-						}
-					}
-				});
-	
-				// Load Layout
-				JMenuItem mntmLoadLayout = new JMenuItem("Load Layout");
-				mntmLoadLayout.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						
-					}
-				});
-	
-	
-				//Set Default Layout
-				JMenuItem mntmSetDefaultLayout = new JMenuItem("Set Default Layout");
-				mntmSetDefaultLayout.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						
-					}
-				});
-	
-				//Reset Default Layout
-				JMenuItem mntmResetDefaultLayout = new JMenuItem("Reset Default Layout");
-				mntmResetDefaultLayout.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						
-					}
-				});
+		// File Button
+		JMenu mnFile = new JMenu("File");
+		menuBar.add(mnFile);
+		
+		//Rename Zone
+		mntmRenameZone.setAction(renameZoneAction);
+
+		// Delete Zone
+		mntmDeleteZone.setAction(removeZoneAction);
+
+		//Add Zone
+		JMenuItem mntmAddZone = new JMenuItem("Add Zone");
+		mntmAddZone.setAction(addZoneAction);
+
+		// Load Layout
+		JMenuItem mntmLoadLayout = new JMenuItem("Load Layout");
+		mntmLoadLayout.addActionListener(loadLayoutListener);
 
 
 		
@@ -195,21 +150,312 @@ public class AppWindow {
 		mnFile.add(mntmRenameZone);
 		mnFile.add(mntmDeleteZone);
 		mnFile.add(separator);
-		mnFile.add(mntmLoadLayout);
-		mnFile.add(mntmSaveLayout);
-		mnFile.add(mntmSetDefaultLayout);
-		
-		JMenuItem mntmConfigureHardware = new JMenuItem("Configure Hardware");
-		mntmConfigureHardware.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				configureHardware();
+		mntmSaveLayout.setText("Save Layout");
+		mntmSaveLayout.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				File defaultLayoutPath = new File("C:\\git\\SimpleLEDControl\\layouts");
+				defaultLayoutPath.mkdirs();
+				
+				JFileChooser saveDialog = new JFileChooser("C:\\git\\SimpleLEDControl\\layouts");
+				int userInput = saveDialog.showSaveDialog(frame);
+				//Wait for user
+				
+				File newLayoutFile;
+				if(userInput == JFileChooser.APPROVE_OPTION) {
+					String layoutPathAdress = saveDialog.getCurrentDirectory().getPath();
+					newLayoutFile = new File(layoutPathAdress + "\\" + saveDialog.getSelectedFile().getName() + ".txt");
+					int overrideUserInput = JOptionPane.OK_OPTION;
+					if(newLayoutFile.exists()) { //Asks for file override
+						overrideUserInput = JOptionPane.showConfirmDialog(tabbedPane,"Are you sure you want to override \"" + saveDialog.getSelectedFile().getName() + ".txt\"?", "Save Layout", JOptionPane.YES_NO_OPTION);
+					}
+					if(overrideUserInput == JOptionPane.OK_OPTION) { //If user is ok with overriding or no file is there to override
+						try {
+							newLayoutFile.createNewFile();
+						} catch (IOException e1) {
+							e1.printStackTrace();
+						}
+						saveLayoutToFile(newLayoutFile);
+					}
+				}
 			}
 		});
+		
+		JMenuItem mntmNewLayout = new JMenuItem("New Layout");
+		mntmNewLayout.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int userInput = JOptionPane.showConfirmDialog(tabbedPane,"Are you sure you want to create a new layout?\r\nAny unsaved changes to this layout will NOT be saved." , "Create New Layout", JOptionPane.YES_NO_OPTION);
+				if(userInput == JOptionPane.YES_OPTION) {
+					newLayout();
+				}
+			}
+		});
+		mnFile.add(mntmNewLayout);
+		mnFile.add(mntmSaveLayout);
+		mnFile.add(mntmLoadLayout);
+		
+		JMenuItem mntmConfigureHardware = new JMenuItem("Configure Hardware");
+		mntmConfigureHardware.addActionListener(configureHardwareListener);
+		
+		JSeparator separator_1 = new JSeparator();
+		mnFile.add(separator_1);
 		mnFile.add(mntmConfigureHardware);
+		updateZones();
 	}
 	
-	private void configureHardware() { //Creates and launches the HardwareConfigurator
-		conf.setBounds(200, 200, 450, 300);
-		conf.setVisible(true);
+	
+	private void newLayout() {
+		conf.closeAllDevices();
+		conf = new HardwareConfigurator();
+		zones.clear();
+		updateZones();
+	}
+	
+	private void saveLayoutToFile(File file) {
+		PrintStream out = null;
+		try {
+			out = new PrintStream(file);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		out.println("layout");
+		out.println("hardware");
+		out.println(conf.getArduinos().size());
+		for(Arduino ard : conf.getArduinos()) {
+			out.println(ard.getName());
+			out.println(ard.getPort().getPortName());
+			out.println(ard.getStrips().size());
+			for(LEDStrip strip : ard.getStrips()) {
+				out.println(strip.getName());
+				out.println(strip.getPin());
+				out.println(strip.getNumOfLEDs());
+			}
+		}
+		out.println("zones");
+		out.println(zones.size());
+		for(Zone zone : zones) {
+			out.println(zone.getName());
+			out.println(zone.getStrips().size());
+			for(LEDStrip strip : zone.getStrips()) {
+				out.println(strip.getName());
+				out.println(strip.getParentArduino().getPort().getPortName());
+				out.println(strip.getPin());
+				out.println(strip.getNumOfLEDs());
+			}
+		}
+	}
+	
+	public void openLayoutFromFile(File file) {
+		newLayout();
+		Scanner s = null;
+		try {
+			s = new Scanner(file);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		
+		String next = null;
+		try {
+			//Check for Layout file
+			next = s.nextLine();
+			if(!next.equals("layout")) {
+				invalidFile();
+				return;
+			} 
+			
+			//Load Hardware
+			next = s.nextLine();
+			if(!next.equals("hardware")) {
+				invalidFile();
+				return;
+			}
+			int numOfDevices = s.nextInt();
+			s.nextLine();
+			ArrayList<Arduino> devices = new ArrayList<Arduino>();
+			for(int i = 0; i<numOfDevices; i++) {
+				String ardName = s.nextLine();
+				String ardPortName = s.nextLine();
+				int numOfStrips = s.nextInt();
+				s.nextLine();
+				ArrayList<LEDStrip> strips = new ArrayList<LEDStrip>();
+				for(int j = 0; j<numOfStrips; j++) {
+					String stripName = s.nextLine();
+					int stripPin = s.nextInt();
+					int stripNum = s.nextInt();
+					s.nextLine();
+					strips.add(new LEDStrip(stripName, stripNum, stripPin));
+				}
+				devices.add(new Arduino(ardName, ardPortName, strips));
+				if(!devices.get(devices.size()-1).isOpen()) {
+					failedToConnect();
+					return;
+				}
+				conf.setDevices(devices);
+			}
+			
+			//Load Zones
+			next = s.nextLine();
+			int numOfZones = s.nextInt();
+			s.nextLine();
+			ArrayList<Zone> zones = new ArrayList<Zone>();
+			for(int j = 0; j<numOfZones; j++) {
+				String zoneName = s.nextLine();
+				int numOfStrips = s.nextInt();
+				s.nextLine();
+				ArrayList<LEDStrip> strips = new ArrayList<LEDStrip>();
+				for(int i = 0; i<numOfStrips; i++) {
+					String stripName = s.nextLine();
+					String portName = s.nextLine();
+					int pin = s.nextInt();
+					int numOfLEDs = s.nextInt();
+					s.nextLine();
+					LEDStrip correspondingStrip = conf.getCorrespondingStrip(stripName, portName, numOfLEDs, pin);
+					if(correspondingStrip != null) {
+						strips.add(correspondingStrip);
+					} else {
+						invalidFile();
+						return;
+					}
+				}
+				zones.add(new Zone(zoneName, strips));
+			}
+			this.zones = zones;
+			updateZones();
+		} catch (NoSuchElementException e) {
+			invalidFile();
+			return;
+		}
+	}
+	
+	private void failedToConnect() {
+		newLayout();
+		JOptionPane.showMessageDialog(tabbedPane,"Failed to connect to one or more devices" , "Error", JOptionPane.ERROR_MESSAGE);
+	}
+	
+	private void invalidFile() {
+		newLayout();
+		JOptionPane.showMessageDialog(tabbedPane,"Invalid Layout File" , "Error", JOptionPane.ERROR_MESSAGE);
+	}
+	
+	//Updates the tabbedPane using the zones ArrayList as a model
+	public void updateZones() {
+		tabbedPane.removeAll();
+		if(zones.size() > 0) {
+			frame.remove(welcomeScreen);
+			frame.getContentPane().add(tabbedPane);
+			for(Zone zone : zones) {
+				tabbedPane.add(zone);
+			}
+			renameZoneAction.checkState();
+			removeZoneAction.checkState();
+		} else {
+			frame.getContentPane().remove(tabbedPane);
+			frame.getContentPane().add(welcomeScreen);
+		}
+		frame.repaint();
+		frame.revalidate();
+	}
+	
+	
+	//ACTIONS
+	private class AddZoneAction extends AbstractAction {
+		public AddZoneAction() {
+			super("Add Zone");
+		}
+		
+		public void actionPerformed(ActionEvent e) {
+			int workingIndex = tabbedPane.getTabCount();
+			System.out.println("New Zone");
+			CreateZoneDialog dialog = new CreateZoneDialog(conf.getArduinos());
+			dialog.setModal(true);
+			dialog.setBounds(200, 200, 300, 300);
+			dialog.setVisible(true);
+			//Wait for user
+			
+			if(dialog.getZone() != null) {
+				zones.add(dialog.getZone());
+				updateZones();
+				if(zones.size() > 0) {
+					renameZoneAction.setEnabled(true);
+					removeZoneAction.setEnabled(true);
+				}
+			}
+		}
+	}
+	
+	private class RenameZoneAction extends AbstractAction {
+		public RenameZoneAction() {
+			super("Rename Zone");
+			if(zones.size() < 1) {
+				this.setEnabled(false);
+			}
+		}
+		
+		public void actionPerformed(ActionEvent e) {
+			Zone currentZone = (Zone) tabbedPane.getSelectedComponent();
+			String newName = JOptionPane.showInputDialog(frame, "Rename Zone", currentZone.getName());
+			//Wait for user
+			if(newName != null) {
+				currentZone.setName(newName);
+			}
+			updateZones();
+		}
+		public void checkState() {
+			if(zones.size() < 1) {
+				this.setEnabled(false);
+			} else {
+				this.setEnabled(true);
+			}
+		}
+	}
+	
+	private class RemoveZoneAction extends AbstractAction {
+		public RemoveZoneAction() {
+			super("Remove Zone");
+			if(zones.size() < 1) {
+				this.setEnabled(false);
+			}
+		}
+		
+		public void actionPerformed(ActionEvent e) {
+			int currentZone = tabbedPane.getSelectedIndex();
+			zones.remove(currentZone);
+			updateZones();
+			if(zones.size() < 1) {
+				this.setEnabled(false);
+				renameZoneAction.setEnabled(false);
+			}
+		}
+		public void checkState() {
+			if(zones.size() < 1) {
+				this.setEnabled(false);
+			} else {
+				this.setEnabled(true);
+			}
+		}
+	}
+	
+	//Action Listeners
+	public class LoadLayoutListener implements ActionListener {
+		public void actionPerformed(ActionEvent e) {
+			File defaultLayoutPath = new File("C:\\git\\SimpleLEDControl\\layouts");
+			defaultLayoutPath.mkdirs();
+			
+			JFileChooser openDialog = new JFileChooser("C:\\git\\SimpleLEDControl\\layouts");
+			int userInput = JFileChooser.CANCEL_OPTION;
+			userInput = openDialog.showOpenDialog(frame);
+			//Wait for user
+			
+			File selectedFile;
+			if(userInput == JFileChooser.APPROVE_OPTION) {
+				selectedFile = openDialog.getSelectedFile();
+				openLayoutFromFile(selectedFile);
+			}
+		}
+	}
+	
+	private class ConfigureHardwareListener implements ActionListener {
+		public void actionPerformed(ActionEvent arg0) {
+			conf.setVisible(true);
+		}
 	}
 }

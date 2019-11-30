@@ -93,7 +93,9 @@ public class CreateZoneDialog extends JDialog {
 				JButton okButton = new JButton("OK");
 				okButton.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent arg0) {
-						okButtonTrigger();
+						System.out.println("Selected strips in CreateZoneDialog: " + tree.getSelectedStrips());
+						createdZone = new Zone(txtZoneName.getText(), tree.getSelectedStrips());
+						setVisible(false);
 					}
 				});
 				okButton.setActionCommand("OK");
@@ -104,7 +106,7 @@ public class CreateZoneDialog extends JDialog {
 				JButton cancelButton = new JButton("Cancel");
 				cancelButton.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
-						cancelButtonTrigger();
+						setVisible(false);
 					}
 				});
 				cancelButton.setActionCommand("Cancel");
@@ -125,25 +127,4 @@ public class CreateZoneDialog extends JDialog {
 	public Zone getZone() {
 		return createdZone;
 	}
-	
-	/*
-	 * 
-	 * Buttons Triggers
-	 * 
-	 */
-	private void okButtonTrigger() {
-		System.out.println("Selected strips in CreateZoneDialog: " + tree.getSelectedStrips());
-		createdZone = new Zone(txtZoneName.getText(), tree.getSelectedStrips());
-		this.setVisible(false);
-	}
-	
-	private void cancelButtonTrigger() {
-		
-	}
-	
-	/*
-	 * 
-	 * End Button Triggers
-	 * 
-	 */
 }

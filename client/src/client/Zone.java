@@ -37,7 +37,7 @@ public class Zone extends JInternalFrame {
 	//Attributes
 	private ArrayList<JButton> customColors = new ArrayList<JButton>();
 	private int numOfButtons = 0;
-	private String zoneName;
+	private String name;
 	
 	
 	//GUI Components
@@ -52,7 +52,7 @@ public class Zone extends JInternalFrame {
 	
 	public Zone(String name, ArrayList<LEDStrip> strips) {
 		super(name);
-		this.zoneName = name;
+		this.name = name;
 		this.strips = strips;
 		this.ports = new HashSet<LEDPort>();
 		for(LEDStrip strip : this.strips) {
@@ -62,16 +62,20 @@ public class Zone extends JInternalFrame {
 	}
 	
 	public String toString() {
-		return zoneName;
+		return name;
 	}
 	
-	public void setZoneName(String name) {
-		zoneName = name;
-		System.out.println("Set Zone Name:" + zoneName);
+	public void setName(String name) {
+		this.name = name;
+		this.setTitle(name);
 	}
 	
 	public String getName() {
-		return zoneName;
+		return name;
+	}
+	
+	public ArrayList<LEDStrip> getStrips(){
+		return strips;
 	}
 	
 	public void sendData() {

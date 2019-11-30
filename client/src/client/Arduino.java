@@ -11,14 +11,17 @@ import java.util.ArrayList;
 import javax.swing.JOptionPane;
 
 import addDeviceDialog.AddDeviceDialog;
+import structures.DeviceComponent;
 
-public class Arduino {
+public class Arduino implements Device,DeviceComponent {
 	
 	private String name;
 	private LEDPort port;
 	private ArrayList<LEDStrip> strips;
 	
 	private AddDeviceDialog addDialog;
+	
+	public final static int MAX_STRIPS = 2;
 	
 	public Arduino() {
 		addDialog = new AddDeviceDialog();
@@ -38,23 +41,16 @@ public class Arduino {
 		this.name = name;
 		this.port = new LEDPort(portIdentity);
 		this.strips = strips;
+		for(LEDStrip strip : strips) {
+			strip.setParentArduino(this);
+		}
+		addDialog = new AddDeviceDialog(this);
 	}
-		
-//		Path newPath = Paths.get("/arduinos")
-//		File textFile = new File("\\SimpleLEDControl\\arduinos\\lights\\infoText.txt");
-//		textFile.getParentFile().mkdirs();
-//		try {
-//			textFile.createNewFile();
-//		} catch (IOException e1) {
-//			e1.printStackTrace();
-//		}
-//		try {
-//			PrintStream fileWrite = new PrintStream(textFile);
-//		} catch (FileNotFoundException e) {
-//			e.printStackTrace();
-//		}
 	
 	public boolean isOpen() {
+		if(port == null) {
+			return false;
+		}
 		return port.isOpen();
 	}
 	
@@ -71,10 +67,47 @@ public class Arduino {
 	}
 	
 	public String toString() {
-		return "[" + name + "," + port.getPort() + "]";
+		if(!isOpen()) {
+			return name + "*";
+		}
+		return name;
+	}
+	
+	public String printInfo() {
+		return "Name: " + name + "\r\n" +
+				"Type: Arduino Uno/Nano\r\n" +  
+				"Port: " + port.getPortName() + "\r\n" + 
+				"Number of Strips: " + strips.size();
 	}
 	
 	public void addStrip(LEDStrip newStrip) {
 		strips.add(newStrip);
+	}
+	
+	public void edit() {
+		port.stopListener();
+		port.closePort();
+		addDialog.setVisible(true);
+		//Wait for user
+		if(!addDialog.isCanceled()) {
+			this.strips = addDialog.getStrips();
+			this.name = addDialog.getDeviceName();
+			this.port = addDialog.getDevicePort();
+			for(LEDStrip strip : strips) {
+				strip.setParentArduino(this);
+			}
+		}
+		port.openPort();
+		port.startListener();
+	}
+
+	public int maxStrips() {
+		return MAX_STRIPS;
+	}
+	
+	private void updateStrips(ArrayList<LEDStrip> newStrips) {
+		for(LEDStrip strip : newStrips) {
+			
+		}
 	}
 }

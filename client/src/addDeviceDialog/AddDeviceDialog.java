@@ -11,13 +11,10 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.SwingConstants;
 import javax.swing.JTextField;
-import javax.swing.ListModel;
-
-import java.awt.Rectangle;
 
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
-import javax.swing.Action;
+import javax.swing.ComboBoxModel;
 import javax.swing.DefaultListModel;
 import javax.swing.border.TitledBorder;
 
@@ -28,6 +25,7 @@ import client.*;
 import javax.swing.JScrollPane;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+
 import javax.swing.JComboBox;
 import javax.swing.JList;
 import javax.swing.event.ListSelectionListener;
@@ -36,27 +34,27 @@ import java.awt.Color;
 import java.awt.Dimension;
 
 public class AddDeviceDialog extends JDialog {
-	
-	//Actions
-	private final RemoveStripAction removeStripAction = new RemoveStripAction();
-	private final AddStripAction addStripAction = new AddStripAction();
-	private final StripListChanged stripListChangedAction = new StripListChanged();
+	private static final long serialVersionUID = 1L;
 	
 	//Components
 	private JTextField deviceNameField;
 	private JComboBox<String> portComboBox;
-	private JComboBox<String> deviceComboBox;
-	private DefaultListModel<StripNode> stripNodes;
+	private JComboBox<DeviceEntry> deviceComboBox;
+	private DefaultListModel<StripNode> stripNodes = new DefaultListModel<>();
 	
 	//Attributes
-	private boolean canceled;
+	private boolean canceled = true;
 	private LEDPort port;
-	private int maxWindowHeight;
 	private JScrollPane scrollPane;
 	private JPanel contentPanel;
-	private JPanel stripNodeInfoPanel;
+	private JPanel currentStripNodePanel;
 	private JList<StripNode> stripJList;
 	private StripNode currentStripNode;
+	
+	//Actions
+	private RemoveStripAction removeStripAction;
+	private AddStripAction addStripAction;
+	private StripListChanged stripListChangedAction;
 	
 
 	
@@ -78,14 +76,39 @@ public class AddDeviceDialog extends JDialog {
 	/**
 	 * Create the dialog.
 	 */
+	
+	//Constructor to populate with existing device
+	public AddDeviceDialog(Arduino device) {
+		initGUI();
+		portComboBox.setSelectedItem(device.getPort());
+		ComboBoxModel<String> model = portComboBox.getModel();
+		for(int i = 0; i<model.getSize(); i++) {
+			if(model.getElementAt(i) == device.getPort().getPortName()) {
+				portComboBox.setSelectedIndex(i);
+			}
+		}
+		deviceNameField.setText(device.getName());
+		for(LEDStrip strip : device.getStrips()) {
+			stripNodes.addElement(new StripNode(strip));
+		}
+		stripNodes.removeElementAt(0);
+		addStripAction.checkState();
+		removeStripAction.checkState();
+	}
+	
+	//Constructor for normal blank creation
 	public AddDeviceDialog() {
+		initGUI();
+	}
+	
+	public void initGUI() {
 		setResizable(true);
-		maxWindowHeight = (int) (getBounds().getX()-300);
-		stripNodes = new DefaultListModel<>();
 		setModal(true);
 		setBounds(100, 100, 600, 400);
 		setMinimumSize(new Dimension(600,400));
 		getContentPane().setLayout(new BorderLayout());
+		
+
 		
 		//CONTENT PANEL
 		contentPanel = new JPanel();
@@ -99,14 +122,19 @@ public class AddDeviceDialog extends JDialog {
 		contentPanel.add(devicePanel, "cell 0 0 3 1,growx,aligny top");
 		devicePanel.setLayout(new MigLayout("", "[100,left][96px,grow,left]", "[][][][20px][20px]"));
 		
+		//Device Select Dropdown Box
+		deviceComboBox = new JComboBox<DeviceEntry>();
+		devicePanel.add(deviceComboBox, "cell 1 1,growx");
+		deviceComboBox.addItem(new DeviceEntry("Arduino Uno/Nano", Arduino.MAX_STRIPS));
+		
+		//INITIALIZE ACTIONS
+		removeStripAction = new RemoveStripAction();
+		addStripAction = new AddStripAction();
+		stripListChangedAction = new StripListChanged();
+		
 		//Device Type Label
 		JLabel lblDeviceType = new JLabel("Device Type");
 		devicePanel.add(lblDeviceType, "cell 0 1,alignx center,aligny center");
-		
-		//Device Select Dropdown Box
-		deviceComboBox = new JComboBox<String>();
-		devicePanel.add(deviceComboBox, "cell 1 1,growx");
-		deviceComboBox.addItem("Arduino Uno/Nano");
 		
 		//COM Label
 		JLabel deviceCOMLabel = new JLabel("COM Port");
@@ -136,23 +164,26 @@ public class AddDeviceDialog extends JDialog {
 		contentPanel.add(listScrollPane, "cell 1 1,grow");
 		
 		//Strip JList
-		stripNodes.addElement(new StripNode());
+		StripNode toAdd = new StripNode();
+		stripNodes.addElement(toAdd);
 		stripJList = new JList<StripNode>(stripNodes);
 		stripJList.addListSelectionListener(stripListChangedAction);
 		stripJList.setSelectedIndex(0);
 		listScrollPane.setViewportView(stripJList);
 		
+		//Add Strip Button
 		JButton addStripButton = new JButton("Add Strip");
-		addStripButton.addActionListener(addStripAction);
+		addStripButton.setAction(addStripAction);
 		contentPanel.add(addStripButton, "flowx,cell 1 2,growx,aligny center");
 		
+		//Remove Strip Button
 		JButton removeStripButton = new JButton("Remove Strip");
-		removeStripButton.addActionListener(removeStripAction);
+		removeStripButton.setAction(removeStripAction);
 		contentPanel.add(removeStripButton, "cell 1 2,growx");
 		
-		stripNodeInfoPanel = new JPanel();
-		stripNodeInfoPanel.setBackground(Color.RED);
-//		contentPanel.add(stripNodeInfoPanel, "cell 2 1,grow");
+		//Current Strip Node Panel
+		currentStripNodePanel = new JPanel();
+		currentStripNodePanel.setBackground(Color.RED);
 			
 		//BUTTON PANE (OK and Cancel Buttons)
 		JPanel buttonPane = new JPanel();
@@ -163,7 +194,19 @@ public class AddDeviceDialog extends JDialog {
 		JButton okButton = new JButton("OK");
 		okButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				ok();
+				boolean hasAllInfo = true;
+				for(int i = 0; i<stripNodes.size(); i++) {
+					if(stripNodes.get(i).isMissingInformation()) {
+						JOptionPane.showMessageDialog(getContentPane(), "Missing Required Information", "Error", JOptionPane.ERROR_MESSAGE);
+						hasAllInfo = false;
+						break;
+					}
+				}
+				if(hasAllInfo) {
+					port = new LEDPort((String) portComboBox.getSelectedItem());
+					canceled = false;
+					setVisible(false);
+				}
 			}
 		});
 		okButton.setActionCommand("OK");
@@ -174,28 +217,13 @@ public class AddDeviceDialog extends JDialog {
 		JButton cancelButton = new JButton("Cancel");
 		cancelButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				cancel();
+				canceled = true;
+				setVisible(false);
 			}
 		});
 		cancelButton.setActionCommand("Cancel");
 		buttonPane.add(cancelButton);
-			
 		
-		
-	}
-	
-	private void ok() {
-		port = new LEDPort((String) portComboBox.getSelectedItem());
-		if(port.isOpen()) {
-			canceled = false;
-			setVisible(false);
-		} else {
-			JOptionPane.showMessageDialog(getContentPane(), "Failed to connect to device on port \"" + portComboBox.getSelectedItem() + "\"", "Error", JOptionPane.ERROR_MESSAGE);
-		}
-	}
-	
-	private void cancel() {
-		canceled = true;
 	}
 	
 	public boolean isCanceled() {
@@ -219,88 +247,103 @@ public class AddDeviceDialog extends JDialog {
 		return strips;
 	}
 	
+	
+	//ACTION CLASSES
+	
+	//Displays the current selected strip node
 	private class StripListChanged implements ListSelectionListener {
 		public void valueChanged(ListSelectionEvent e) {
-			System.out.println(e.getSource());
+			@SuppressWarnings("unchecked")
 			StripNode selectedNode = (StripNode) ((JList<StripNode>)e.getSource()).getSelectedValue();
-			System.out.println(selectedNode);
-			if(currentStripNode != null) {
+			if(currentStripNode != null) { 
 				contentPanel.remove(currentStripNode);
 			}
-			contentPanel.add(selectedNode, "cell 2 1,growx, aligny top");
-			currentStripNode = selectedNode;
+			if(selectedNode != null) { 
+				contentPanel.add(selectedNode, "cell 2 1,growx, aligny top");
+				currentStripNode = selectedNode;
+			}
+			repaint();
+			revalidate();
 		}
 	}
 	
-	private class AddStripAction implements ActionListener{
+	private class AddStripAction extends AbstractAction{
+		private static final long serialVersionUID = 1L;
+		public AddStripAction() {
+			super("Add Strip");
+			if(((DeviceEntry)deviceComboBox.getSelectedItem()).maxStrips() == 1) { //Fix to make dynamic
+				setEnabled(false);
+			}
+		}
+		
 		public void actionPerformed(ActionEvent e) {
 			StripNode newStripNode = new StripNode();
 			stripNodes.addElement(newStripNode);
-			stripJList.setSelectedIndex(stripJList.getModel().getSize()-1);
-			System.out.println(stripNodes);
-
+			stripJList.setSelectedIndex(stripNodes.getSize()-1);
+			if(stripNodes.size() >= ((DeviceEntry)deviceComboBox.getSelectedItem()).maxStrips()) { //Fix to make dynamic
+				setEnabled(false);
+			}
+			removeStripAction.setEnabled(true);
+		}
+		
+		public void checkState() {
+			if(stripNodes.size() >= ((DeviceEntry)deviceComboBox.getSelectedItem()).maxStrips()) {
+				setEnabled(false);
+			} else {
+				setEnabled(true);
+			}
 		}
 	}
 	
-	private class RemoveStripAction implements ActionListener {
+	private class RemoveStripAction extends AbstractAction {
+		private static final long serialVersionUID = 1L;
+		public RemoveStripAction() {
+			super("Remove Strip");
+			if(stripNodes.size() <= 1) {
+				setEnabled(false);
+			}
+		}
 		public void actionPerformed(ActionEvent e) {
 			StripNode toRemove = stripJList.getSelectedValue();
-			DefaultListModel<StripNode> listModel = (DefaultListModel<StripNode>) stripJList.getModel();
-			if(listModel.getElementAt(listModel.size()-1) != toRemove) {
+			if(stripNodes.getElementAt(stripNodes.size()-1) != toRemove) {
 				stripJList.setSelectedIndex(stripJList.getModel().getSize()-1);
 			} else {
 				stripJList.setSelectedIndex(stripJList.getModel().getSize()-2);
 			}
-			listModel.removeElement(toRemove);
-			System.out.println(toRemove);
-			System.out.println(stripNodes);
+			stripNodes.removeElement(toRemove);
+			if(stripNodes.size() <= 1) {
+				setEnabled(false);
+			}
+			if(stripNodes.size() < ((DeviceEntry)deviceComboBox.getSelectedItem()).maxStrips()) {
+				addStripAction.setEnabled(true);
+			}
+		}
+		
+		public void checkState() {
+			if(stripNodes.size() <= 1) {
+				setEnabled(false);
+			} else {
+				setEnabled(true);
+			}
 		}
 	}
 	
-//	private class StripNode extends JPanel {
-//		private JTextField nameTextField;
-//		private JTextField pinTextField;
-//		private JTextField numTextField;
-//		
-//		private String[] data;
-//		private JButton btnRemove;
-//
-//		/**
-//		 * Create the panel.
-//		 */
-//		public StripNode(boolean first) {
-//			setBorder(new TitledBorder(null, "LED Strip", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-//			setLayout(new MigLayout("", "[100px,center][grow,center]", "[grow][grow][grow][]"));
-//			
-//			JLabel lblName = new JLabel("Name");
-//			add(lblName, "cell 0 0,alignx center,aligny center");
-//			
-//			nameTextField = new JTextField();
-//			add(nameTextField, "cell 1 0,growx,aligny center");
-//			nameTextField.setColumns(10);
-//			
-//			JLabel lblPin = new JLabel("PIN");
-//			add(lblPin, "cell 0 1,alignx center,aligny center");
-//			
-//			pinTextField = new JTextField();
-//			add(pinTextField, "cell 1 1,growx,aligny center");
-//			pinTextField.setColumns(10);
-//			
-//			JLabel lblNumberOfLeds = new JLabel("Number of LEDs");
-//			add(lblNumberOfLeds, "cell 0 2,alignx center,growy");
-//			
-//			numTextField = new JTextField();
-//			add(numTextField, "cell 1 2,growx,aligny center");
-//			numTextField.setColumns(10);
-//			if(!first) {
-//				btnRemove = new JButton("Remove");
-//				btnRemove.addActionListener(removeAction);
-//				add(btnRemove, "cell 1 3,alignx right");
-//			}
-//		}
-//		
-//		public LEDStrip getStrip() {
-//			return new LEDStrip(nameTextField.getText(), Integer.parseInt(numTextField.getText()), Integer.parseInt(pinTextField.getText()));
-//		}
-//	}
+	//ENTRIES FOR STRIP JLIST
+	private class DeviceEntry {
+		private String name;
+		private int maxStrips;
+		
+		public DeviceEntry(String name, int maxStrips) {
+			this.name = name;
+			this.maxStrips = maxStrips;
+		}
+		
+		public int maxStrips() {
+			return this.maxStrips;
+		}
+		
+		public String toString() {
+			return name;
+		}
+	}
 }
