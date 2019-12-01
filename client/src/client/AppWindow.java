@@ -1,5 +1,6 @@
 package client;
 
+import java.awt.Dimension;
 import java.awt.EventQueue;
 
 import javax.swing.AbstractAction;
@@ -97,8 +98,8 @@ public class AppWindow {
 		 * Frame
 		 */
 		frame = new JFrame();
-		frame.setResizable(false);
-		frame.setBounds(100, 100, 807, 705);
+		frame.setBounds(100, 100, 822, 705);
+		frame.setMinimumSize(new Dimension(822, 705));
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(new GridLayout(1, 0, 0, 0));
 		frame.addWindowListener(new WindowAdapter() {
@@ -123,34 +124,35 @@ public class AppWindow {
 		// Bar
 		JMenuBar menuBar = new JMenuBar();
 		frame.setJMenuBar(menuBar);
-		JSeparator separator = new JSeparator();
-
-		// File Button
-		JMenu mnFile = new JMenu("File");
-		menuBar.add(mnFile);
 		
-		//Rename Zone
-		mntmRenameZone.setAction(renameZoneAction);
-
-		// Delete Zone
-		mntmDeleteZone.setAction(removeZoneAction);
-
-		//Add Zone
-		JMenuItem mntmAddZone = new JMenuItem("Add Zone");
-		mntmAddZone.setAction(addZoneAction);
-
-		// Load Layout
-		JMenuItem mntmLoadLayout = new JMenuItem("Load Layout");
-		mntmLoadLayout.addActionListener(loadLayoutListener);
-
-
+		JMenu mnZone = new JMenu("Zone");
+		menuBar.add(mnZone);
 		
-		// Add all the menu items to the menu.
-		mnFile.add(mntmAddZone);
-		mnFile.add(mntmRenameZone);
-		mnFile.add(mntmDeleteZone);
-		mnFile.add(separator);
+				//Add Zone
+				JMenuItem mntmAddZone = new JMenuItem("Add Zone");
+				mnZone.add(mntmAddZone);
+				mntmAddZone.setAction(addZoneAction);
+				mnZone.add(mntmRenameZone);
+				
+				//Rename Zone
+				mntmRenameZone.setAction(renameZoneAction);
+						mnZone.add(mntmDeleteZone);
+				
+						// Delete Zone
+						mntmDeleteZone.setAction(removeZoneAction);
+		
+		JMenu mnLayout = new JMenu("Layout");
+		menuBar.add(mnLayout);
+		
+		JMenuItem mntmNewLayout = new JMenuItem("New Layout");
+		mnLayout.add(mntmNewLayout);
+		mnLayout.add(mntmSaveLayout);
 		mntmSaveLayout.setText("Save Layout");
+		
+				// Load Layout
+				JMenuItem mntmLoadLayout = new JMenuItem("Load Layout");
+				mnLayout.add(mntmLoadLayout);
+				mntmLoadLayout.addActionListener(loadLayoutListener);
 		mntmSaveLayout.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				File defaultLayoutPath = new File("C:\\git\\SimpleLEDControl\\layouts");
@@ -179,8 +181,6 @@ public class AppWindow {
 				}
 			}
 		});
-		
-		JMenuItem mntmNewLayout = new JMenuItem("New Layout");
 		mntmNewLayout.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int userInput = JOptionPane.showConfirmDialog(tabbedPane,"Are you sure you want to create a new layout?\r\nAny unsaved changes to this layout will NOT be saved." , "Create New Layout", JOptionPane.YES_NO_OPTION);
@@ -189,16 +189,13 @@ public class AppWindow {
 				}
 			}
 		});
-		mnFile.add(mntmNewLayout);
-		mnFile.add(mntmSaveLayout);
-		mnFile.add(mntmLoadLayout);
+		
+		JMenu mnHardware = new JMenu("Hardware");
+		menuBar.add(mnHardware);
 		
 		JMenuItem mntmConfigureHardware = new JMenuItem("Configure Hardware");
+		mnHardware.add(mntmConfigureHardware);
 		mntmConfigureHardware.addActionListener(configureHardwareListener);
-		
-		JSeparator separator_1 = new JSeparator();
-		mnFile.add(separator_1);
-		mnFile.add(mntmConfigureHardware);
 		updateZones();
 	}
 	

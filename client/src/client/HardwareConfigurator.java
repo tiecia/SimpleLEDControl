@@ -109,7 +109,7 @@ public class HardwareConfigurator extends JDialog {
 		}
 		});
         tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-		bodyPanel.setLayout(new MigLayout("", "[212px][212px,grow]", "[180px]"));
+		bodyPanel.setLayout(new MigLayout("", "[212px][212px,grow]", "[180px,grow]"));
         
         
 		JScrollPane treeScrollPane = new JScrollPane(tree); //Create tree scroll pane and add tree

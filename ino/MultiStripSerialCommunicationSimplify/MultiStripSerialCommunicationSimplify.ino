@@ -6,7 +6,7 @@
 #include <EEPROM.h>
 
 
-#define NUM_LEDS 30
+#define NUM_LEDS 200
 #define NUM_STRIPS 2
 
 

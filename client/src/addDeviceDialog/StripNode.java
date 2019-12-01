@@ -4,11 +4,15 @@ import javax.swing.JPanel;
 import net.miginfocom.swing.MigLayout;
 import javax.swing.JTextField;
 import javax.swing.JLabel;
+import javax.swing.JMenu;
 import javax.swing.border.TitledBorder;
 
 import client.LEDStrip;
 
 import javax.swing.AbstractAction;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.text.NumberFormat;
@@ -28,6 +32,9 @@ public class StripNode extends JPanel {
 	//Attributes
 	private final int thisStripNum = totalStrips;
 	private LEDStrip strip;
+	
+	//Actions
+	FieldListener fieldListener = new FieldListener();
 	
 	public StripNode() {
 		initGUI();
@@ -72,7 +79,8 @@ public class StripNode extends JPanel {
 		add(lblPin, "cell 0 1,alignx center,aligny center");
 		
 		//Pin Field
-		pinTextField = new JFormattedTextField(NumberFormat.getIntegerInstance());
+		pinTextField = new JFormattedTextField();
+		pinTextField.addKeyListener(fieldListener);
 		add(pinTextField, "cell 1 1,growx,aligny center");
 		pinTextField.setColumns(10);
 		
@@ -81,7 +89,8 @@ public class StripNode extends JPanel {
 		add(lblNumberOfLeds, "cell 0 2,alignx center,growy");
 		
 		//Number of LEDs Field
-		numTextField = new JFormattedTextField(NumberFormat.getIntegerInstance());
+		numTextField = new JFormattedTextField();
+		numTextField.addKeyListener(fieldListener);
 		add(numTextField, "cell 1 2,growx,aligny center");
 		numTextField.setColumns(10);
 		
@@ -108,5 +117,22 @@ public class StripNode extends JPanel {
 			return true;
 		}
 		return false;
+	}
+	
+	private class FieldListener extends KeyAdapter {
+		public void keyReleased(KeyEvent e) {
+			JFormattedTextField field = (JFormattedTextField) e.getSource();
+			int text;
+			try {
+				text = Integer.parseInt(field.getText());
+				if(text > 200) {
+					field.setText("200");
+				} else if(text < 0) {
+					field.setText("0");
+				}
+			} catch (NumberFormatException ex) {
+				field.setText("");
+			}
+		}
 	}
 }
