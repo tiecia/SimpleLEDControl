@@ -1,50 +1,37 @@
-package client;
+package hardwareConfigurator;
 
 import java.awt.BorderLayout;
-import java.awt.FlowLayout;
-
 import javax.swing.JButton;
 import javax.swing.JDialog;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
-import javax.swing.border.EmptyBorder;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
+import hardware.Arduino;
+import hardware.LEDStrip;
+
 import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.awt.event.ActionEvent;
-import javax.swing.JTextField;
-import javax.swing.JComboBox;
-import java.awt.Choice;
 import net.miginfocom.swing.MigLayout;
 import structures.DeviceComponent;
-import sun.reflect.generics.tree.Tree;
-
-import javax.swing.JSplitPane;
 import javax.swing.JTree;
 import javax.swing.JScrollPane;
 import java.awt.Color;
-import java.awt.GridLayout;
 import javax.swing.JTextArea;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.event.TreeSelectionEvent;
-import javax.swing.JEditorPane;
 import javax.swing.JMenuItem;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.SystemColor;
 
 public class HardwareConfigurator extends JDialog {
-	
+	private static final long serialVersionUID = 1L;
+
 	private ArrayList<Arduino> arduinos = new ArrayList<Arduino>();
 	
 	private JTree tree;
@@ -109,7 +96,7 @@ public class HardwareConfigurator extends JDialog {
 		}
 		});
         tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-		bodyPanel.setLayout(new MigLayout("", "[212px][212px,grow]", "[180px]"));
+		bodyPanel.setLayout(new MigLayout("", "[212px][212px,grow]", "[180px,grow]"));
         
         
 		JScrollPane treeScrollPane = new JScrollPane(tree); //Create tree scroll pane and add tree
@@ -148,7 +135,6 @@ public class HardwareConfigurator extends JDialog {
 					if(newArduino.isOpen()) {
 						arduinos.add(newArduino);
 						updateTree();
-//						addDeviceToTree(newArduino);
 					} else {
 						newArduino = null;
 					}
@@ -176,11 +162,6 @@ public class HardwareConfigurator extends JDialog {
 		model.reload();
 		tree.repaint();
 		tree.setSelectionRow(0);
-	}
-	
-	private void updateHTML() {
-		Object selected = tree.getLastSelectedPathComponent();
-		
 	}
 	
 	public ArrayList<Arduino> getArduinos() {
@@ -216,7 +197,9 @@ public class HardwareConfigurator extends JDialog {
 	}
 	
 	private class RightClickMenu extends JPopupMenu {
-	    public RightClickMenu() {
+		private static final long serialVersionUID = 1L;
+
+		public RightClickMenu() {
 	    	JMenuItem editButton = new JMenuItem("Edit Device");
 	    	editButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {

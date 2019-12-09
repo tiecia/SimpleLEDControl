@@ -1,0 +1,20 @@
+layout
+hardware
+1
+Nano
+COM4
+2
+Strip
+3
+12
+X-mas Light
+6
+60
+zones
+1
+Zone Name
+1
+Strip
+COM4
+3
+12

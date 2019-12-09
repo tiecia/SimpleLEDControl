@@ -1,0 +1,24 @@
+layout
+hardware
+1
+Arduino
+COM5
+2
+Short
+2
+10
+Long
+3
+60
+zones
+1
+Zone Name
+2
+Long
+COM5
+3
+60
+Short
+COM5
+2
+10

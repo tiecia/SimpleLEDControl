@@ -1,21 +1,23 @@
 package structures;
 
-import javax.swing.JPanel;
-import javax.swing.JTree;
-import javax.swing.UIManager;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
-
 import java.awt.BorderLayout;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Vector;
 
-import javax.swing.tree.*;
-import client.Arduino;
-import client.LEDStrip;
+import javax.swing.JPanel;
+import javax.swing.JTree;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreeNode;
+import javax.swing.tree.TreePath;
+import javax.swing.tree.TreeSelectionModel;
+
+import hardware.Arduino;
+import hardware.LEDStrip;
 
 public class HardwareTree extends JPanel implements TreeSelectionListener {
+	private static final long serialVersionUID = -3994651760840455330L;
 	
 	private DefaultMutableTreeNode rootNode;
 	private JTree tree;
@@ -36,8 +38,7 @@ public class HardwareTree extends JPanel implements TreeSelectionListener {
 			rootNode.add(deviceNode);
 		}
 		tree = new JTree(rootNode);
-//		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
-		tree.setSelectionModel(new HardwareTreeSelectionModel());
+		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
 		tree.addTreeSelectionListener(this);
 		tree.setRootVisible(false);
 		tree.setToggleClickCount(0);
@@ -65,11 +66,7 @@ public class HardwareTree extends JPanel implements TreeSelectionListener {
 
 	public void valueChanged(TreeSelectionEvent arg0) {
 		DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
-
-		if(!selectedNode.isLeaf() && !(selectedNode == rootNode)) { //If clicked node is an arduino node
-			TreeNode[] selectedNodePathArray = {rootNode, selectedNode};
-			TreePath selectedNodePath = new TreePath(selectedNodePathArray);
-			
+		if(!selectedNode.isLeaf() && !(selectedNode == rootNode)) { //If clicked node is an arduino nodes			
 			if(isAllLeafNodesSelected(selectedNode)) { //If all leaf nodes are selected deselect all leaf nodes
 				for(int i = 0; i<selectedNode.getChildCount(); i++) {
 					TreeNode[] path = {rootNode, selectedNode, selectedNode.getChildAt(i)};

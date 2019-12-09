@@ -6,8 +6,7 @@
 #include <EEPROM.h>
 
 
-#define NUM_LEDS 30
-#define NUM_STRIPS 2
+#define NUM_LEDS 60
 
 
 int stripPin;
@@ -16,13 +15,15 @@ int red;
 int green;
 int blue;
 
-CRGB leds[2][NUM_LEDS];
+CRGB leds[4][NUM_LEDS];
 
 void setup()
 {
     Serial.begin(115200);
-    FastLED.addLeds<NEOPIXEL, 2>(leds[0], NUM_LEDS);
-    FastLED.addLeds<NEOPIXEL, 3>(leds[1], NUM_LEDS);
+    FastLED.addLeds<NEOPIXEL, 3>(leds[0], NUM_LEDS);
+    FastLED.addLeds<NEOPIXEL, 4>(leds[1], NUM_LEDS);
+    FastLED.addLeds<NEOPIXEL, 5>(leds[2], NUM_LEDS);
+    FastLED.addLeds<NEOPIXEL, 6>(leds[3], NUM_LEDS);
     FastLED.clear(true);
     
     FastLED.setBrightness(100);
@@ -42,7 +43,7 @@ void loop()
 
     FastLED.setBrightness(brightness);
     for(int j = 0; j<NUM_LEDS; j++){
-      leds[stripPin-2][j].setRGB(red,green,blue);
+      leds[stripPin-3][j].setRGB(red,green,blue);
     }
     FastLED.show();
   }

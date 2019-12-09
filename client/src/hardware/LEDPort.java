@@ -1,6 +1,5 @@
-package client;
+package hardware;
 
-import java.io.PrintWriter;
 import java.util.Arrays;
 
 import javax.swing.JOptionPane;
@@ -8,8 +7,6 @@ import javax.swing.JOptionPane;
 import com.fazecast.jSerialComm.SerialPort;
 import com.fazecast.jSerialComm.SerialPortDataListener;
 import com.fazecast.jSerialComm.SerialPortEvent;
-
-import structures.DeviceComponent;
 
 public class LEDPort  {
 
@@ -34,7 +31,7 @@ public class LEDPort  {
 			   {
 			      if (event.getEventType() != SerialPort.LISTENING_EVENT_DATA_AVAILABLE)
 			         return;
-			      byte[] newData = new byte[port.bytesAvailable()];
+			      byte[] newData = new byte[5];
 			      int numRead = port.readBytes(newData, newData.length);
 			      System.out.println("New Data: " + Arrays.toString(newData));
 			      System.out.println("Read " + numRead + " bytes.");

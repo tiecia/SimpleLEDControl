@@ -1,19 +1,11 @@
-package client;
+package hardware;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintStream;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 
-import javax.swing.JOptionPane;
-
 import addDeviceDialog.AddDeviceDialog;
-import structures.DeviceComponent;
+import structures.Device;
 
-public class Arduino implements Device,DeviceComponent {
+public class Arduino implements Device {
 	
 	private String name;
 	private LEDPort port;
@@ -103,11 +95,5 @@ public class Arduino implements Device,DeviceComponent {
 
 	public int maxStrips() {
 		return MAX_STRIPS;
-	}
-	
-	private void updateStrips(ArrayList<LEDStrip> newStrips) {
-		for(LEDStrip strip : newStrips) {
-			
-		}
 	}
 }
