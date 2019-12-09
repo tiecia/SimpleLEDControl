@@ -10,7 +10,9 @@ import java.awt.GridLayout;
 import javax.swing.JTabbedPane;
 
 import createZoneDialog.CreateZoneDialog;
-import javafx.scene.shape.Path;
+import hardware.Arduino;
+import hardware.LEDStrip;
+import hardwareConfigurator.HardwareConfigurator;
 
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
@@ -23,23 +25,15 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.PrintStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.InputMismatchException;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 import java.awt.event.ActionEvent;
-import javax.swing.JSeparator;
 
 public class AppWindow {
 
 	private JFrame frame;
-
-	private int numOfTabs = 0;
 
 	private JTabbedPane tabbedPane = null;
 	private WelcomePanel welcomeScreen = null;
@@ -82,44 +76,21 @@ public class AppWindow {
 	 */
 
 	public AppWindow() {
-		File toCreate = new File("C:\\git\\SimpleLEDControl\\default");
-		toCreate.mkdirs();
-		initialize();
-//		openLayoutFromFile(new File("C:\\git\\SimpleLEDControl\\default\\defaultLayout.txt"));
-	}
-
-	/**
-	 * Initialize the contents of the frame.
-	 */
-	private void initialize() {
 		welcomeScreen =  new WelcomePanel(configureHardwareListener, addZoneAction, loadLayoutListener);
 		
-		/*
-		 * Frame
-		 */
 		frame = new JFrame();
 		frame.setBounds(100, 100, 822, 705);
-		frame.setMinimumSize(new Dimension(822, 705));
+		frame.setMinimumSize(new Dimension(1240, 700));
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(new GridLayout(1, 0, 0, 0));
 		frame.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
-				File def = new File("C:\\git\\SimpleLEDControl\\default\\defaultLayout.txt");
-//				saveLayoutToFile(def);
 				conf.closeAllDevices();
 			}
 		});
 
-		/*
-		 * Tabbed Pane
-		 */
 
 		tabbedPane = new JTabbedPane(JTabbedPane.TOP);
-//		frame.getContentPane().add(tabbedPane);
-
-		/*
-		 * Menu Bar
-		 */
 
 		// Bar
 		JMenuBar menuBar = new JMenuBar();
@@ -128,18 +99,18 @@ public class AppWindow {
 		JMenu mnZone = new JMenu("Zone");
 		menuBar.add(mnZone);
 		
-				//Add Zone
-				JMenuItem mntmAddZone = new JMenuItem("Add Zone");
-				mnZone.add(mntmAddZone);
-				mntmAddZone.setAction(addZoneAction);
-				mnZone.add(mntmRenameZone);
-				
-				//Rename Zone
-				mntmRenameZone.setAction(renameZoneAction);
-						mnZone.add(mntmDeleteZone);
-				
-						// Delete Zone
-						mntmDeleteZone.setAction(removeZoneAction);
+		//Add Zone
+		JMenuItem mntmAddZone = new JMenuItem("Add Zone");
+		mnZone.add(mntmAddZone);
+		mntmAddZone.setAction(addZoneAction);
+		mnZone.add(mntmRenameZone);
+		
+		//Rename Zone
+		mntmRenameZone.setAction(renameZoneAction);
+		mnZone.add(mntmDeleteZone);
+
+		// Delete Zone
+		mntmDeleteZone.setAction(removeZoneAction);
 		
 		JMenu mnLayout = new JMenu("Layout");
 		menuBar.add(mnLayout);
@@ -313,7 +284,7 @@ public class AppWindow {
 						return;
 					}
 				}
-				zones.add(new Zone(zoneName, strips));
+				zones.add(new Zone(frame, zoneName, strips));
 			}
 			this.zones = zones;
 			updateZones();
@@ -355,14 +326,15 @@ public class AppWindow {
 	
 	//ACTIONS
 	private class AddZoneAction extends AbstractAction {
+		private static final long serialVersionUID = 1L;
+
 		public AddZoneAction() {
 			super("Add Zone");
 		}
 		
 		public void actionPerformed(ActionEvent e) {
-			int workingIndex = tabbedPane.getTabCount();
 			System.out.println("New Zone");
-			CreateZoneDialog dialog = new CreateZoneDialog(conf.getArduinos());
+			CreateZoneDialog dialog = new CreateZoneDialog(frame, conf.getArduinos());
 			dialog.setModal(true);
 			dialog.setBounds(200, 200, 300, 300);
 			dialog.setVisible(true);
@@ -380,6 +352,7 @@ public class AppWindow {
 	}
 	
 	private class RenameZoneAction extends AbstractAction {
+		private static final long serialVersionUID = 1L;
 		public RenameZoneAction() {
 			super("Rename Zone");
 			if(zones.size() < 1) {
@@ -406,6 +379,7 @@ public class AppWindow {
 	}
 	
 	private class RemoveZoneAction extends AbstractAction {
+		private static final long serialVersionUID = 1L;
 		public RemoveZoneAction() {
 			super("Remove Zone");
 			if(zones.size() < 1) {

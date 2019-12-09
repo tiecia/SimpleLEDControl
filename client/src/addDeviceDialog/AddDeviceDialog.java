@@ -1,37 +1,36 @@
 package addDeviceDialog;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
-
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JPanel;
-import net.miginfocom.swing.MigLayout;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.SwingConstants;
-import javax.swing.JTextField;
-
 import java.awt.event.ActionEvent;
-import javax.swing.AbstractAction;
-import javax.swing.ComboBoxModel;
-import javax.swing.DefaultListModel;
-import javax.swing.border.TitledBorder;
-
-import com.fazecast.jSerialComm.SerialPort;
-
-import client.*;
-
-import javax.swing.JScrollPane;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
+import javax.swing.AbstractAction;
+import javax.swing.ComboBoxModel;
+import javax.swing.DefaultListModel;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
 import javax.swing.JList;
-import javax.swing.event.ListSelectionListener;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
-import java.awt.Color;
-import java.awt.Dimension;
+import javax.swing.event.ListSelectionListener;
+
+import com.fazecast.jSerialComm.SerialPort;
+
+import hardware.Arduino;
+import hardware.LEDPort;
+import hardware.LEDStrip;
+import net.miginfocom.swing.MigLayout;
 
 public class AddDeviceDialog extends JDialog {
 	private static final long serialVersionUID = 1L;
@@ -240,7 +239,6 @@ public class AddDeviceDialog extends JDialog {
 	
 	public ArrayList<LEDStrip> getStrips() {
 		ArrayList<LEDStrip> strips = new ArrayList<LEDStrip>();
-		StripNode[] nodeArray = new StripNode[stripNodes.getSize()];
 		for(int i = 0; i<stripNodes.size(); i++) {
 			strips.add(stripNodes.get(i).getStrip());
 		}

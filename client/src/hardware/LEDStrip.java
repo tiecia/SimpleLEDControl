@@ -1,4 +1,4 @@
-package client;
+package hardware;
 
 import structures.DeviceComponent;
 

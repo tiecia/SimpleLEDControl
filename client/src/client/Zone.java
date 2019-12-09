@@ -2,48 +2,48 @@ package client;
 
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JSlider;
 import javax.swing.JSpinner;
 import javax.swing.JPanel;
-import java.awt.GridLayout;
-import javax.swing.JButton;
-import java.awt.Color;
+import javax.swing.JPopupMenu;
 
-import javax.swing.JTextField;
-import javax.swing.BoxLayout;
+import javax.swing.JButton;
+
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+
 import javax.swing.SwingConstants;
+import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import hardware.LEDPort;
+import hardware.LEDStrip;
 
 import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.PrintStream;
+import java.awt.event.MouseEvent;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 import java.awt.event.ActionEvent;
-import javax.swing.JToolBar;
-import javax.swing.JSeparator;
-import javax.swing.border.BevelBorder;
 import java.awt.Font;
 import net.miginfocom.swing.MigLayout;
 import javax.swing.border.TitledBorder;
 import javax.swing.colorchooser.AbstractColorChooserPanel;
 import javax.swing.JColorChooser;
+import javax.swing.JScrollPane;
+import java.awt.event.MouseAdapter;
 
 
 @SuppressWarnings("serial")
 public class Zone extends JInternalFrame {
 	
 	//Attributes
-	private ArrayList<JButton> customColors = new ArrayList<JButton>();
-	private int numOfButtons = 0;
 	private String name;
 	
 	private Set<LEDPort> ports;
@@ -51,15 +51,24 @@ public class Zone extends JInternalFrame {
 	private JColorChooser colorChooser;
 	
 	private ColorChangeListener colorChangeListener = new ColorChangeListener();
+	private JPanel scrollViewport;
 	
-	public Zone(String name, ArrayList<LEDStrip> strips) {
+	private Component parent;
+	
+	
+	public Zone(Component parent, String name, ArrayList<LEDStrip> strips) {
 		super(name);
 		this.name = name;
 		this.strips = strips;
 		this.ports = new HashSet<LEDPort>();
+		this.parent = parent;
 		for(LEDStrip strip : this.strips) {
 			ports.add(strip.getParentArduino().getPort());
 		}
+		
+		int length = 20;
+		UIManager.put("ColorChooser.swatchesRecentSwatchSize", new Dimension(length, length));
+		UIManager.put("ColorChooser.swatchesSwatchSize", new Dimension(length, length));
 		GuiInit();
 	}
 	
@@ -78,13 +87,6 @@ public class Zone extends JInternalFrame {
 	
 	public ArrayList<LEDStrip> getStrips(){
 		return strips;
-	}
-	
-	public void sendData() {
-		for(LEDStrip strip : this.strips) {
-			LEDPort currentPort = strip.getParentArduino().getPort();
-			currentPort.sendData(strip.getPin(), sliderBrightness.get, sliderRed.getValue(), sliderGreen.getValue(), sliderBlue.getValue());
-		}
 	}
 	
 	/**
@@ -112,7 +114,30 @@ public class Zone extends JInternalFrame {
 		
 		customColorBox.setBorder(new TitledBorder(null, "", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		getContentPane().add(customColorBox, "cell 1 2,grow");
-		customColorBox.setLayout(new GridLayout(5, 4, 0, 0));
+		customColorBox.setLayout(new MigLayout("", "[grow]", "[grow][]"));
+		
+		JScrollPane scrollPane = new JScrollPane();
+		customColorBox.add(scrollPane, "cell 0 0,grow");
+		
+		scrollViewport = new JPanel();
+		scrollPane.setViewportView(scrollViewport);
+		scrollViewport.setLayout(new MigLayout("", "[grow,fill]", "[]"));
+		
+		JPanel panel = new JPanel();
+		customColorBox.add(panel, "cell 0 1,growx");
+		
+		JButton btnSaveColor = new JButton("Save Color");
+		
+		btnSaveColor.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				String input = JOptionPane.showInputDialog(colorChooser,"Enter Color Name", "Add Custom Color", JOptionPane.DEFAULT_OPTION);
+				scrollViewport.add(new ColorButton(input, colorChooser.getColor()), "wrap");
+				repaint();
+				revalidate();
+			}
+		});
+
+		panel.add(btnSaveColor);
 		
 		JLabel lblCustomColors = new JLabel("Custom Colors");
 		getContentPane().add(lblCustomColors, "cell 1 1,growx,aligny top");
@@ -156,5 +181,44 @@ public class Zone extends JInternalFrame {
 	        JSpinner spinner = (JSpinner) f4.get(transpSlispinner);
 	        spinner.setEnabled(false);
 	    }
+	}
+	
+	private class ColorButton extends JButton {
+		
+		private Color userObject;
+		private JButton currentButton = this;
+		
+		public ColorButton(String name, Color c) {
+			super(name);
+			super.setBackground(c);
+			super.setForeground(Color.BLACK);
+			float luminance = c.getRed() + c.getGreen() + c.getBlue();
+			System.out.println(luminance);
+			if(luminance <= 350) {
+				super.setForeground(Color.WHITE);
+			}
+			userObject = c;
+			JPopupMenu rClick = new JPopupMenu();
+			JMenuItem remove = new JMenuItem("Remove");
+			remove.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent arg0) {
+					scrollViewport.remove(currentButton);
+					parent.repaint();
+					parent.revalidate();
+				}
+			});
+			rClick.add(remove);
+			super.addMouseListener(new MouseAdapter() {
+				public void mouseClicked(MouseEvent e) {
+					if(e.getButton()  == MouseEvent.BUTTON1) {
+						colorChooser.setColor(userObject);
+					} else if(e.getButton() == MouseEvent.BUTTON3) {
+						System.out.println("Right");
+						rClick.show(currentButton, e.getX(), e.getY());
+					}
+				}
+			});
+		}
+		
 	}
 }

@@ -1,22 +1,16 @@
 package addDeviceDialog;
 
-import javax.swing.JPanel;
-import net.miginfocom.swing.MigLayout;
-import javax.swing.JTextField;
-import javax.swing.JLabel;
-import javax.swing.JMenu;
-import javax.swing.border.TitledBorder;
-
-import client.LEDStrip;
-
-import javax.swing.AbstractAction;
-
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.text.NumberFormat;
+
 import javax.swing.JFormattedTextField;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.border.TitledBorder;
+
+import hardware.LEDStrip;
+import net.miginfocom.swing.MigLayout;
 
 public class StripNode extends JPanel {
 	private static final long serialVersionUID = 1L;

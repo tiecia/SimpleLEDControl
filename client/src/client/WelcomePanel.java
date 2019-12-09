@@ -1,21 +1,19 @@
 package client;
 
-import javax.swing.JPanel;
-
-import client.AppWindow.LoadLayoutListener;
-import net.miginfocom.swing.MigLayout;
-import javax.swing.JLabel;
-import javax.swing.JButton;
 import java.awt.Font;
 import java.awt.event.ActionListener;
+
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+
+import net.miginfocom.swing.MigLayout;
 
 
 
 public class WelcomePanel extends JPanel {
-	
-	/**
-	 * Create the panel.
-	 */
+	private static final long serialVersionUID = -8692901635100132285L;
+
 	public WelcomePanel(ActionListener conf, ActionListener add, ActionListener load) {
 		setLayout(new MigLayout("", "[][grow][trailing][10][growprio 1000,leading][grow]", "[234.00][70px,grow][][15px][][15][][100px,grow]"));
 		
