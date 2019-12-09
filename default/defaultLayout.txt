@@ -1,5 +1,0 @@
-layout
-hardware
-0
-zones
-0
