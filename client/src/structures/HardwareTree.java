@@ -42,6 +42,13 @@ public class HardwareTree extends JPanel implements TreeSelectionListener {
 		tree.addTreeSelectionListener(this);
 		tree.setRootVisible(false);
 		tree.setToggleClickCount(0);
+		
+		for(int i = 0; i<rootNode.getChildCount(); i++) {
+			tree.expandRow(i);
+			System.out.println(rootNode.getChildAt(i));
+			System.out.println(i);
+		}
+		
 		super.setLayout(new BorderLayout());
 		super.add(tree);
 	}
