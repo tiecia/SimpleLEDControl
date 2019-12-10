@@ -46,13 +46,9 @@ public class Zone extends JInternalFrame {
 	//Attributes
 	private String name;
 	
-<<<<<<< HEAD
 	private Set<LEDPort> ports;
 	private ArrayList<LEDStrip> strips;
 	private JColorChooser colorChooser;
-=======
-	private Set<LEDPort> zonePorts;
->>>>>>> master
 	
 	private ColorChangeListener colorChangeListener = new ColorChangeListener();
 	private JPanel scrollViewport;
@@ -62,7 +58,6 @@ public class Zone extends JInternalFrame {
 	
 	public Zone(Component parent, String name, ArrayList<LEDStrip> strips) {
 		super(name);
-<<<<<<< HEAD
 		this.name = name;
 		this.strips = strips;
 		this.ports = new HashSet<LEDPort>();
@@ -74,15 +69,6 @@ public class Zone extends JInternalFrame {
 		int length = 20;
 		UIManager.put("ColorChooser.swatchesRecentSwatchSize", new Dimension(length, length));
 		UIManager.put("ColorChooser.swatchesSwatchSize", new Dimension(length, length));
-=======
-		strips = new ArrayList<>();
-		zonePorts = new HashSet<>();
-		zoneName = name;
-		this.strips = strips;
-		for(Object strip : strips) {
-			zonePorts.add(strip);
-		}
->>>>>>> master
 		GuiInit();
 	}
 	
