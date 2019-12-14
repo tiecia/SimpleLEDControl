@@ -131,7 +131,7 @@ public class HardwareConfigurator extends JDialog {
 		btnAddDevice.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				Arduino newArduino = new Arduino();
-				if(newArduino != null) {
+				if(newArduino.getPort() != null) {
 					if(newArduino.isOpen()) {
 						arduinos.add(newArduino);
 						updateTree();

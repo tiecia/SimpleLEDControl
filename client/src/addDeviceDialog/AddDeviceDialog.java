@@ -91,7 +91,7 @@ public class AddDeviceDialog extends JDialog {
 			stripNodes.addElement(new StripNode(strip));
 		}
 		stripNodes.removeElementAt(0);
-		addStripAction.checkState();
+//		addStripAction.checkState();
 		removeStripAction.checkState();
 	}
 	
@@ -278,9 +278,9 @@ public class AddDeviceDialog extends JDialog {
 			StripNode newStripNode = new StripNode();
 			stripNodes.addElement(newStripNode);
 			stripJList.setSelectedIndex(stripNodes.getSize()-1);
-			if(stripNodes.size() >= ((DeviceEntry)deviceComboBox.getSelectedItem()).maxStrips()) { //Fix to make dynamic
-				setEnabled(false);
-			}
+//			if(stripNodes.size() >= ((DeviceEntry)deviceComboBox.getSelectedItem()).maxStrips()) { //Fix to make dynamic
+//				setEnabled(false);
+//			}
 			removeStripAction.setEnabled(true);
 		}
 		
